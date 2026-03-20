@@ -1,42 +1,60 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const ApiError = require("../utils/ApiError");
+const asyncHandler = require("../utils/asyncHandler");
 
-const protect = async (req, res, next) => {
-  let token;
+const protect = asyncHandler(async (req, res, next) => {
+  const authHeader = req.headers.authorization || "";
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    try {
-      // Get token from header
-      token = req.headers.authorization.split(' ')[1];
-
-      // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Get user from the token
-      req.user = await User.findById(decoded.id).select('-password');
-
-      next();
-    } catch (error) {
-      console.error(error);
-      res.status(401).json({ message: 'Not authorized, token failed' });
-    }
+  if (!process.env.JWT_SECRET) {
+    throw new ApiError(500, "JWT_SECRET is not configured");
   }
 
+  if (!/^Bearer\s+/i.test(authHeader)) {
+    throw new ApiError(401, "Not authorized, no token");
+  }
+
+  const token = authHeader.split(" ")[1]?.trim();
   if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+    throw new ApiError(401, "Not authorized, malformed token");
   }
-};
+
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    const message =
+      error.name === "TokenExpiredError"
+        ? "Not authorized, token expired"
+        : "Not authorized, token failed";
+    throw new ApiError(401, message);
+  }
+
+  const user = await User.findById(decoded.id).select("-password");
+  if (!user) {
+    throw new ApiError(401, "Not authorized, user not found");
+  }
+
+  req.user = user;
+  next();
+});
 
 const authorize = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        message: `User role ${req.user.role} is not authorized to access this route`,
-      });
+    if (!req.user) {
+      return next(new ApiError(401, "Not authorized"));
     }
+
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new ApiError(
+          403,
+          `User role ${req.user.role} is not authorized to access this route`,
+        ),
+      );
+    }
+
     next();
   };
 };

@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   getListings,
@@ -6,12 +6,18 @@ const {
   createListing,
   updateListing,
   deleteListing,
-} = require('../controllers/listingController');
-const { protect } = require('../middleware/authMiddleware');
+} = require("../controllers/listingController");
+const { protect } = require("../middleware/authMiddleware");
+const {
+  createListingValidation,
+} = require("../middleware/validationMiddleware");
 
-router.route('/').get(getListings).post(protect, createListing);
 router
-  .route('/:id')
+  .route("/")
+  .get(getListings)
+  .post(protect, createListingValidation, createListing);
+router
+  .route("/:id")
   .get(getListing)
   .put(protect, updateListing)
   .delete(protect, deleteListing);
