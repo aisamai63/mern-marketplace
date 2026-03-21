@@ -325,9 +325,3 @@ Recommended order for demo:
 4. Get listings
 5. Update listing
 6. Delete listing
-
-## Submission Notes
-
-- Ensure MongoDB is running or MongoDB Atlas URI is valid.
-- Ensure .env variables are set before starting server.
-- Use Postman environment variables for base URL, token, and listing ID for faster demo.
