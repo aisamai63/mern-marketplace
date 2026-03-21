@@ -186,7 +186,7 @@ const updateListing = asyncHandler(async (req, res) => {
   const updateData = validateUpdatePayload(req.body);
 
   listing = await Listing.findByIdAndUpdate(req.params.id, updateData, {
-    new: true,
+    returnDocument: "after",
     runValidators: true,
   });
 
