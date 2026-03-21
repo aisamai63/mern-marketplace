@@ -50,7 +50,7 @@ app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
     data: {
-      message: "API is running...",
+      message: "MERN Marketplace API is running...",
     },
   });
 });
