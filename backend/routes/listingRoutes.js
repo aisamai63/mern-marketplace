@@ -1,0 +1,25 @@
+const express = require("express");
+const router = express.Router();
+const {
+  getListings,
+  getListing,
+  createListing,
+  updateListing,
+  deleteListing,
+} = require("../controllers/listingController");
+const { protect } = require("../middleware/authMiddleware");
+const {
+  createListingValidation,
+} = require("../middleware/validationMiddleware");
+
+router
+  .route("/")
+  .get(getListings)
+  .post(protect, createListingValidation, createListing);
+router
+  .route("/:id")
+  .get(getListing)
+  .put(protect, updateListing)
+  .delete(protect, deleteListing);
+
+module.exports = router;

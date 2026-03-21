@@ -1,0 +1,530 @@
+{
+  "info": {
+    "_postman_id": "f0a9a7ab-ea8f-40cd-95e7-b040372d9f0d",
+    "name": "MERN Marketplace Backend",
+    "description": "Complete test flow for MERN marketplace backend endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "pm.test('Health success is true', function () {",
+              "  pm.expect(res.success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Register (with confirmPassword)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const uniqueEmail = `demo_${Date.now()}@example.com`;",
+              "pm.collectionVariables.set('userEmail', uniqueEmail);",
+              "pm.collectionVariables.set('token', '');",
+              "pm.collectionVariables.set('listingId', '');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "pm.test('Register success is true', function () {",
+              "  pm.expect(res.success).to.eql(true);",
+              "});",
+              "",
+              "pm.test('Token exists', function () {",
+              "  pm.expect(res.data.token).to.be.a('string').and.not.empty;",
+              "});",
+              "",
+              "if (res && res.data && res.data.token) {",
+              "  pm.collectionVariables.set('token', res.data.token);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Demo User\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\",\n  \"confirmPassword\": \"{{userPassword}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "pm.test('Login success is true', function () {",
+              "  pm.expect(res.success).to.eql(true);",
+              "});",
+              "",
+              "pm.test('Token exists', function () {",
+              "  pm.expect(res.data.token).to.be.a('string').and.not.empty;",
+              "});",
+              "",
+              "if (res && res.data && res.data.token) {",
+              "  pm.collectionVariables.set('token', res.data.token);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. Get Current User (/me)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "pm.test('/me success is true', function () {",
+              "  pm.expect(res.success).to.eql(true);",
+              "});",
+              "",
+              "pm.test('User email matches login user', function () {",
+              "  pm.expect(res.data.email).to.eql(pm.collectionVariables.get('userEmail'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. Create Listing",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "pm.test('Create listing success is true', function () {",
+              "  pm.expect(res.success).to.eql(true);",
+              "});",
+              "",
+              "pm.test('Listing id is returned', function () {",
+              "  pm.expect(res.data._id).to.be.a('string').and.not.empty;",
+              "});",
+              "",
+              "if (res && res.data && res.data._id) {",
+              "  pm.collectionVariables.set('listingId', res.data._id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"iPhone 13\",\n  \"description\": \"128GB, excellent condition\",\n  \"price\": 650,\n  \"category\": \"Electronics\",\n  \"images\": [\"https://example.com/iphone.jpg\"],\n  \"location\": \"Toronto\",\n  \"status\": \"active\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/listings",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "listings"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. Get Listings",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "pm.test('Get listings success is true', function () {",
+              "  pm.expect(res.success).to.eql(true);",
+              "});",
+              "",
+              "pm.test('Response has count and items', function () {",
+              "  pm.expect(res.data).to.have.property('count');",
+              "  pm.expect(res.data).to.have.property('items');",
+              "  pm.expect(res.data.items).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/listings",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "listings"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7. Get Listing By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "pm.test('Get listing by id success is true', function () {",
+              "  pm.expect(res.success).to.eql(true);",
+              "});",
+              "",
+              "pm.test('Returned listing id matches', function () {",
+              "  pm.expect(res.data._id).to.eql(pm.collectionVariables.get('listingId'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/listings/{{listingId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "listings",
+            "{{listingId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. Update Listing",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "pm.test('Update listing success is true', function () {",
+              "  pm.expect(res.success).to.eql(true);",
+              "});",
+              "",
+              "pm.test('Listing fields are updated', function () {",
+              "  pm.expect(res.data.price).to.eql(600);",
+              "  pm.expect(res.data.description).to.eql('Price updated for quick sale');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"price\": 600,\n  \"description\": \"Price updated for quick sale\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/listings/{{listingId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "listings",
+            "{{listingId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "9. Delete Listing",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const res = pm.response.json();",
+              "pm.test('Delete listing success is true', function () {",
+              "  pm.expect(res.success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/listings/{{listingId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "listings",
+            "{{listingId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10. Verify Listing Deleted",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 404 after delete', function () {",
+              "  pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/listings/{{listingId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "listings",
+            "{{listingId}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "userEmail",
+      "value": "demo@example.com"
+    },
+    {
+      "key": "userPassword",
+      "value": "123456"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "listingId",
+      "value": ""
+    }
+  ]
+}
