@@ -10,7 +10,7 @@ const authRoutes = require("./routes/authRoutes");
 const listingRoutes = require("./routes/listingRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const app = express();
 const morganFormat = process.env.NODE_ENV === "production" ? "combined" : "dev";
