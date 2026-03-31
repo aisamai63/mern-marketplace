@@ -28,6 +28,16 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    profilePicture: {
+      type: String,
+      default: "",
+    },
+    favorites: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Listing",
+      },
+    ],
   },
   {
     timestamps: true,

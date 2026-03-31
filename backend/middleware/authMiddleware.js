@@ -59,4 +59,11 @@ const authorize = (...roles) => {
   };
 };
 
-module.exports = { protect, authorize };
+const adminOnly = (req, res, next) => {
+  if (!req.user || req.user.role !== "admin") {
+    return next(new ApiError(403, "Admin only"));
+  }
+  next();
+};
+
+module.exports = { protect, authorize, adminOnly };

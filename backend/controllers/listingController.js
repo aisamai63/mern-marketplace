@@ -101,11 +101,29 @@ const validateUpdatePayload = (payload) => {
   return validated;
 };
 
-// @desc    Get all listings
+// @desc    Get all listings (with search & filters)
 // @route   GET /api/listings
 // @access  Public
 const getListings = asyncHandler(async (req, res) => {
-  const listings = await Listing.find({ status: "active" })
+  const { q, category, minPrice, maxPrice, location } = req.query;
+  const query = { status: "active" };
+
+  if (q) {
+    query.$text = { $search: q };
+  }
+  if (category) {
+    query.category = category;
+  }
+  if (location) {
+    query.location = location;
+  }
+  if (minPrice || maxPrice) {
+    query.price = {};
+    if (minPrice) query.price.$gte = Number(minPrice);
+    if (maxPrice) query.price.$lte = Number(maxPrice);
+  }
+
+  const listings = await Listing.find(query)
     .populate("user", "name email")
     .sort({ createdAt: -1 });
 
@@ -143,9 +161,13 @@ const createListing = asyncHandler(async (req, res) => {
     price: Number(req.body.price),
     category: normalizeString(req.body.category),
     location: normalizeString(req.body.location),
+    images: [],
   };
 
-  if (req.body.images !== undefined) {
+  // Handle uploaded files (images/videos)
+  if (req.files && req.files.length > 0) {
+    payload.images = req.files.map((file) => `/uploads/${file.filename}`);
+  } else if (req.body.images !== undefined) {
     payload.images = parseImages(req.body.images);
   }
 
@@ -184,6 +206,11 @@ const updateListing = asyncHandler(async (req, res) => {
   }
 
   const updateData = validateUpdatePayload(req.body);
+
+  // If new files uploaded, replace images array
+  if (req.files && req.files.length > 0) {
+    updateData.images = req.files.map((file) => `/uploads/${file.filename}`);
+  }
 
   listing = await Listing.findByIdAndUpdate(req.params.id, updateData, {
     returnDocument: "after",

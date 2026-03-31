@@ -13,6 +13,10 @@ import AddListing from "./pages/AddListing";
 import EditListing from "./pages/EditListing";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Profile from "./pages/Profile";
+
+import ListingDetails from "./pages/ListingDetails";
+import Wishlist from "./pages/Wishlist";
 
 function App() {
   return (
@@ -39,6 +43,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/listings/:id" element={<ListingDetails />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/" element={<Navigate to="/listings" />} />
         </Routes>
       </Router>

@@ -8,6 +8,7 @@ const rateLimit = require("express-rate-limit");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const listingRoutes = require("./routes/listingRoutes");
+const userRoutes = require("./routes/userRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 dotenv.config({ path: path.resolve(__dirname, ".env") });
@@ -45,6 +46,9 @@ app.use(cors());
 app.use(morgan(morganFormat));
 app.use("/api", apiLimiter);
 
+// Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // Health route
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -58,6 +62,7 @@ app.get("/", (req, res) => {
 // API routes
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/listings", listingRoutes);
+app.use("/api/users", userRoutes);
 
 // Global handlers
 app.use(notFound);

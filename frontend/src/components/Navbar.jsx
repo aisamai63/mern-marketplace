@@ -24,9 +24,13 @@ function Navbar() {
           >
             Add Listing
           </button>
+          <Link to="/wishlist" style={{ marginRight: "1rem" }}>
+            Wishlist
+          </Link>
           <button onClick={handleLogout} style={{ marginRight: "1rem" }}>
             Logout
           </button>
+          <button onClick={() => navigate("/profile")}>Profile</button>
         </>
       ) : (
         <Link to="/login">Login</Link>
