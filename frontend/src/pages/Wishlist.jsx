@@ -27,7 +27,7 @@ const Wishlist = () => {
       <div className="wishlist-listings">
         {favorites.map(listing => (
           <div key={listing._id} className="wishlist-card">
-            <Link to={`/listing/${listing._id}`}>
+            <Link to={`/listings/${listing._id}`}>
               <img
                 src={listing.images && listing.images.length > 0 ? listing.images[0] : '/default-image.jpg'}
                 alt={listing.title}

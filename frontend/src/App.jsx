@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import "./App.css";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -13,10 +14,12 @@ import AddListing from "./pages/AddListing";
 import EditListing from "./pages/EditListing";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import Profile from "./pages/Profile";
 
 import ListingDetails from "./pages/ListingDetails";
 import Wishlist from "./pages/Wishlist";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -49,6 +52,14 @@ function App() {
               <ProtectedRoute>
                 <Profile />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
             }
           />
           <Route path="/listings/:id" element={<ListingDetails />} />

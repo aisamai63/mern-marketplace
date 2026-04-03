@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
+import api from "../utils/api";
 
 const AuthContext = createContext();
 
@@ -8,6 +9,7 @@ export function AuthProvider({ children }) {
     return stored ? JSON.parse(stored) : null;
   });
 
+  // Persist user to localStorage whenever it changes
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
@@ -15,6 +17,34 @@ export function AuthProvider({ children }) {
       localStorage.removeItem("user");
     }
   }, [user]);
+
+  // On mount, re-validate the stored token against /api/auth/me
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (!stored) return;
+    let parsed;
+    try {
+      parsed = JSON.parse(stored);
+    } catch (_) {
+      return;
+    }
+    if (!parsed?.token) return;
+
+    api
+      .get("/api/auth/me")
+      .then((res) => {
+        // Refresh user data from server while keeping the token
+        const fresh = res.data?.data;
+        if (fresh) {
+          setUser((prev) => ({ ...fresh, token: prev?.token || parsed.token }));
+        }
+      })
+      .catch(() => {
+        // Token is invalid/expired — clear auth state
+        setUser(null);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Accepts the full backend response and stores user+token
   const login = (data) => {
@@ -27,15 +57,17 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Merge a partial update into the current user (used after profile edits)
+  const updateUser = (partial) => {
+    setUser((prev) => (prev ? { ...prev, ...partial } : prev));
+  };
+
   // Wishlist (favorites) management
   const fetchFavorites = async () => {
     if (!user) return [];
     try {
-      const res = await fetch("/api/users/favorites", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      const data = await res.json();
-      // Support both { data: { favorites } } and { favorites }
+      const res = await api.get("/api/users/favorites");
+      const data = res.data;
       let favorites = [];
       if (data && data.data && data.data.favorites) {
         favorites = data.data.favorites;
@@ -51,11 +83,8 @@ export function AuthProvider({ children }) {
   const addFavorite = async (listingId) => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/users/favorites/${listingId}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      if (res.ok) {
+      const res = await api.post(`/api/users/favorites/${listingId}`);
+      if (res.status >= 200 && res.status < 300) {
         fetchFavorites();
       }
     } catch (e) { }
@@ -64,11 +93,8 @@ export function AuthProvider({ children }) {
   const removeFavorite = async (listingId) => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/users/favorites/${listingId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      if (res.ok) {
+      const res = await api.delete(`/api/users/favorites/${listingId}`);
+      if (res.status >= 200 && res.status < 300) {
         fetchFavorites();
       }
     } catch (e) { }
@@ -87,6 +113,7 @@ export function AuthProvider({ children }) {
         favorites,
         login,
         logout,
+        updateUser,
         fetchFavorites,
         refreshFavorites,
         addFavorite,

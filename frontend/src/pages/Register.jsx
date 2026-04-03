@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -13,7 +13,7 @@ function Register() {
     e.preventDefault();
     setError("");
     try {
-      await axios.post("/api/auth/register", { name, email, password });
+      await api.post("/api/auth/register", { name, email, password });
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
@@ -21,10 +21,10 @@ function Register() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "2rem auto" }}>
+    <div className="auth-page">
       <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="form-group">
           <label>Name</label>
           <input
             type="text"
@@ -33,7 +33,7 @@ function Register() {
             required
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Email</label>
           <input
             type="email"
@@ -42,7 +42,7 @@ function Register() {
             required
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Password</label>
           <input
             type="password"
@@ -51,8 +51,8 @@ function Register() {
             required
           />
         </div>
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        <button type="submit">Register</button>
+        {error && <div className="form-error">{error}</div>}
+        <button type="submit" className="btn-primary">Register</button>
       </form>
       <p>
         Already have an account? <Link to="/login">Login</Link>

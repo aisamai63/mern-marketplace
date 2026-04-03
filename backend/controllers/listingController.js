@@ -104,8 +104,15 @@ const validateUpdatePayload = (payload) => {
 // @desc    Get all listings (with search & filters)
 // @route   GET /api/listings
 // @access  Public
+const SORT_MAP = {
+  price_asc: { price: 1 },
+  price_desc: { price: -1 },
+  date_newest: { createdAt: -1 },
+  date_oldest: { createdAt: 1 },
+};
+
 const getListings = asyncHandler(async (req, res) => {
-  const { q, category, minPrice, maxPrice, location } = req.query;
+  const { q, category, minPrice, maxPrice, location, sort } = req.query;
   const query = { status: "active" };
 
   if (q) {
@@ -123,9 +130,11 @@ const getListings = asyncHandler(async (req, res) => {
     if (maxPrice) query.price.$lte = Number(maxPrice);
   }
 
+  const sortOrder = SORT_MAP[sort] || { createdAt: -1 };
+
   const listings = await Listing.find(query)
     .populate("user", "name email")
-    .sort({ createdAt: -1 });
+    .sort(sortOrder);
 
   return sendSuccess(res, 200, {
     count: listings.length,

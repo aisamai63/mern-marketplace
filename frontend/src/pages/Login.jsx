@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
 function Login() {
@@ -14,7 +14,7 @@ function Login() {
     e.preventDefault();
     setError("");
     try {
-      const res = await axios.post("/api/auth/login", { email, password });
+      const res = await api.post("/api/auth/login", { email, password });
       login(res.data.data); // Store user and token from backend response
       navigate("/listings");
     } catch (err) {
@@ -23,10 +23,10 @@ function Login() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "2rem auto" }}>
+    <div className="auth-page">
       <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="form-group">
           <label>Email</label>
           <input
             type="email"
@@ -35,7 +35,7 @@ function Login() {
             required
           />
         </div>
-        <div>
+        <div className="form-group">
           <label>Password</label>
           <input
             type="password"
@@ -44,8 +44,8 @@ function Login() {
             required
           />
         </div>
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        <button type="submit">Login</button>
+        {error && <div className="form-error">{error}</div>}
+        <button type="submit" className="btn-primary">Login</button>
       </form>
       <p>
         Don't have an account? <Link to="/register">Register</Link>

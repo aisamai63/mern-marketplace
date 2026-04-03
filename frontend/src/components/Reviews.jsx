@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import StarRating from "./StarRating";
 
@@ -21,7 +21,7 @@ export default function Reviews({ listingId }) {
   const fetchReviews = async (reset = false, pageNum = page) => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/listings/${listingId}/reviews?page=${pageNum}&limit=${PAGE_SIZE}`);
+      const res = await api.get(`/api/listings/${listingId}/reviews?page=${pageNum}&limit=${PAGE_SIZE}`);
       const items = res.data?.data?.items || [];
       const count = res.data?.data?.count || 0;
       setTotalCount(count);
@@ -50,19 +50,17 @@ export default function Reviews({ listingId }) {
     if (!user) return alert('Please login to add a review');
     try {
       if (editId) {
-        await axios.put(
+        await api.put(
           `/api/listings/${listingId}/reviews/${editId}`,
-          { rating: editRating, comment: editComment },
-          { headers: { Authorization: `Bearer ${user.token}` } }
+          { rating: editRating, comment: editComment }
         );
         setEditId(null);
         setEditRating(5);
         setEditComment("");
       } else {
-        await axios.post(
+        await api.post(
           `/api/listings/${listingId}/reviews`,
-          { rating, comment },
-          { headers: { Authorization: `Bearer ${user.token}` } }
+          { rating, comment }
         );
         setComment("");
         setRating(5);
@@ -78,9 +76,7 @@ export default function Reviews({ listingId }) {
     if (!user) return alert('Not authorized');
     if (!window.confirm('Delete review?')) return;
     try {
-      await axios.delete(`/api/listings/${listingId}/reviews/${revId}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      await api.delete(`/api/listings/${listingId}/reviews/${revId}`);
       setPage(1);
       fetchReviews(true, 1);
     } catch (err) {
