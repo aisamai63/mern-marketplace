@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 function Profile() {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [edit, setEdit] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", profilePicture: "" });
@@ -14,11 +14,8 @@ function Profile() {
 
   useEffect(() => {
     if (!user) return;
-    // Fetch profile
-    axios
-      .get("/api/users/me", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      })
+    api
+      .get("/api/users/me")
       .then((res) => {
         setProfile(res.data.data);
         setForm({
@@ -28,11 +25,9 @@ function Profile() {
         });
       })
       .catch(() => setError("Failed to load profile"));
-    // Fetch user's listings
-    axios
-      .get("/api/listings", {
-        headers: { Authorization: `Bearer ${user.token}` },
-      })
+
+    api
+      .get("/api/listings")
       .then((res) => {
         if (Array.isArray(res.data?.data?.items)) {
           setListings(
@@ -49,11 +44,9 @@ function Profile() {
     e.preventDefault();
     setError("");
     try {
-      const res = await axios.put("/api/users/me", form, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
+      const res = await api.put("/api/users/me", form);
       setProfile(res.data.data);
-      login({ ...user, ...res.data.data }); // update context
+      updateUser(res.data.data); // sync name/picture into AuthContext immediately
       setEdit(false);
     } catch (err) {
       setError("Update failed");
@@ -61,21 +54,21 @@ function Profile() {
   };
 
   if (!user) return <div>Please log in to view your profile.</div>;
-  if (!profile) return <div>Loading...</div>;
+  if (!profile) return <div>Loading…</div>;
 
   return (
-    <div style={{ maxWidth: 500, margin: "2rem auto" }}>
+    <div className="profile-page">
       <h2>My Profile</h2>
       {profile.profilePicture && (
         <img
           src={profile.profilePicture}
           alt="Profile"
-          style={{ width: 100, borderRadius: "50%" }}
+          className="profile-avatar"
         />
       )}
       {edit ? (
-        <form onSubmit={handleSubmit}>
-          <div>
+        <form onSubmit={handleSubmit} className="listing-form">
+          <div className="form-group">
             <label>Name</label>
             <input
               name="name"
@@ -84,7 +77,7 @@ function Profile() {
               required
             />
           </div>
-          <div>
+          <div className="form-group">
             <label>Email</label>
             <input
               name="email"
@@ -93,40 +86,47 @@ function Profile() {
               required
             />
           </div>
-          <div>
+          <div className="form-group">
             <label>Profile Picture URL</label>
             <input
               name="profilePicture"
               value={form.profilePicture}
               onChange={handleChange}
+              placeholder="https://..."
             />
           </div>
-          {error && <div style={{ color: "red" }}>{error}</div>}
-          <button type="submit">Save</button>
-          <button type="button" onClick={() => setEdit(false)}>
-            Cancel
-          </button>
+          {form.profilePicture && (
+            <img
+              src={form.profilePicture}
+              alt="Preview"
+              className="profile-avatar"
+              onError={(e) => { e.target.style.display = "none"; }}
+            />
+          )}
+          {error && <div className="form-error">{error}</div>}
+          <div className="form-actions">
+            <button type="submit" className="btn-primary">Save</button>
+            <button type="button" onClick={() => setEdit(false)}>Cancel</button>
+          </div>
         </form>
       ) : (
         <>
-          <p>
-            <b>Name:</b> {profile.name}
-          </p>
-          <p>
-            <b>Email:</b> {profile.email}
-          </p>
-          <button onClick={() => setEdit(true)}>Edit Profile</button>
+          <p><b>Name:</b> {profile.name}</p>
+          <p><b>Email:</b> {profile.email}</p>
+          <button className="btn-primary" onClick={() => setEdit(true)}>Edit Profile</button>
         </>
       )}
       <hr />
       <h3>My Listings</h3>
-      <ul>
+      {listings.length === 0 && <p>No listings yet.</p>}
+      <ul className="profile-listings">
         {listings.map((listing) => (
-          <li key={listing._id}>
-            <b>{listing.title}</b> - {listing.status} - ${listing.price}
+          <li key={listing._id} className="profile-listing-item">
+            <span>
+              <b>{listing.title}</b> — {listing.status} — ${listing.price}
+            </span>
             <button
               onClick={() => navigate(`/edit-listing/${listing._id}`)}
-              style={{ marginLeft: 8 }}
             >
               Edit
             </button>

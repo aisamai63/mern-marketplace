@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import { isVideoMedia, resolveMediaUrl } from "../utils/media";
 
@@ -11,7 +11,7 @@ function EditListing() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
-  const [images, setImages] = useState([""]);
+  const [images, setImages] = useState([]);
   const [status, setStatus] = useState("active");
   const [error, setError] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]);
@@ -21,7 +21,7 @@ function EditListing() {
   useEffect(() => {
     const fetchListing = async () => {
       try {
-        const res = await axios.get(`/api/listings/${id}`);
+        const res = await api.get(`/api/listings/${id}`);
         const listing = res.data.data;
         setTitle(listing.title);
         setDescription(listing.description);
@@ -30,7 +30,7 @@ function EditListing() {
         setLocation(listing.location || "");
         setStatus(listing.status || "active");
         setImages(
-          listing.images && listing.images.length ? listing.images : [""],
+          listing.images && listing.images.length ? listing.images : [],
         );
       } catch (err) {
         setError("Failed to load listing");
@@ -38,17 +38,6 @@ function EditListing() {
     };
     fetchListing();
   }, [id]);
-
-  const handleImageChange = (idx, value) => {
-    const newImages = [...images];
-    newImages[idx] = value;
-    setImages(newImages);
-  };
-
-  const addImageField = () => setImages([...images, ""]);
-
-  const removeImageField = (idx) =>
-    setImages(images.filter((_, i) => i !== idx));
 
   const handleMediaChange = (e) => {
     setMediaFiles(Array.from(e.target.files));
@@ -66,16 +55,12 @@ function EditListing() {
       formData.append("category", category);
       formData.append("location", location);
       formData.append("status", status);
-      formData.append("userId", user?._id);
       mediaFiles.forEach((file) => formData.append("media", file));
 
-      await axios.put(`/api/listings/${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${user?.token}`,
-        },
+      await api.put(`/api/listings/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      navigate("/");
+      navigate("/listings");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update listing");
     }
@@ -95,11 +80,11 @@ function EditListing() {
   }, [previews]);
 
   return (
-    <div style={{ maxWidth: 400, margin: "2rem auto" }}>
+    <div className="form-page">
       <h2>Edit Listing</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div>
+      <form onSubmit={handleSubmit} className="listing-form">
+        <div className="form-group">
           <label>Title</label>
           <input
             value={title}
@@ -108,7 +93,7 @@ function EditListing() {
           />
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Description</label>
           <textarea
             value={description}
@@ -117,7 +102,7 @@ function EditListing() {
           />
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Price</label>
           <input
             type="number"
@@ -127,7 +112,7 @@ function EditListing() {
           />
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Category</label>
           <input
             value={category}
@@ -135,7 +120,7 @@ function EditListing() {
           />
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Location</label>
           <input
             value={location}
@@ -143,95 +128,7 @@ function EditListing() {
           />
         </div>
 
-        <div>
-          <label>Images / Videos</label>
-          <input
-            type="file"
-            accept="image/*,video/*"
-            multiple
-            onChange={handleMediaChange}
-          />
-          <div
-            style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}
-          >
-            {previews.map((preview, idx) => {
-              if (preview.type.startsWith("image")) {
-                return (
-                  <img
-                    key={idx}
-                    src={preview.url}
-                    alt="preview"
-                    style={{
-                      width: 60,
-                      height: 60,
-                      objectFit: "cover",
-                      borderRadius: 4,
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                );
-              } else if (preview.type.startsWith("video")) {
-                return (
-                  <video
-                    key={idx}
-                    src={preview.url}
-                    style={{
-                      width: 60,
-                      height: 60,
-                      borderRadius: 4,
-                      border: "1px solid #ccc",
-                    }}
-                    controls
-                  />
-                );
-              } else {
-                return null;
-              }
-            })}
-            {/* Show already uploaded images/videos */}
-            {images &&
-              images.map((media, idx) => {
-                if (!media || typeof media !== "string") {
-                  return null;
-                }
-
-                const mediaUrl = resolveMediaUrl(media);
-
-                if (isVideoMedia(media)) {
-                  return (
-                    <video
-                      key={"old-" + idx}
-                      src={mediaUrl}
-                      style={{
-                        width: 60,
-                        height: 60,
-                        borderRadius: 4,
-                        border: "1px solid #ccc",
-                      }}
-                      controls
-                    />
-                  );
-                }
-
-                return (
-                  <img
-                    key={"old-" + idx}
-                    src={mediaUrl}
-                    alt="preview"
-                    style={{
-                      width: 60,
-                      height: 60,
-                      objectFit: "cover",
-                      borderRadius: 4,
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                );
-              })}
-          </div>
-        </div>
-
-        <div>
+        <div className="form-group">
           <label>Status</label>
           <select value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="active">Active</option>
@@ -240,9 +137,68 @@ function EditListing() {
           </select>
         </div>
 
-        {error && <div style={{ color: "red" }}>{error}</div>}
+        <div className="form-group">
+          <label>Replace Images / Videos</label>
+          <input
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            onChange={handleMediaChange}
+          />
+          <div className="media-previews">
+            {/* New file previews */}
+            {previews.map((preview, idx) => {
+              if (preview.type.startsWith("image")) {
+                return (
+                  <img
+                    key={`new-${idx}`}
+                    src={preview.url}
+                    alt="preview"
+                    className="media-thumb"
+                  />
+                );
+              } else if (preview.type.startsWith("video")) {
+                return (
+                  <video
+                    key={`new-${idx}`}
+                    src={preview.url}
+                    className="media-thumb"
+                    controls
+                  />
+                );
+              }
+              return null;
+            })}
+            {/* Existing media (shown only when no new files selected) */}
+            {previews.length === 0 &&
+              images.map((media, idx) => {
+                if (!media || typeof media !== "string") return null;
+                const mediaUrl = resolveMediaUrl(media);
+                if (isVideoMedia(media)) {
+                  return (
+                    <video
+                      key={`old-${idx}`}
+                      src={mediaUrl}
+                      className="media-thumb"
+                      controls
+                    />
+                  );
+                }
+                return (
+                  <img
+                    key={`old-${idx}`}
+                    src={mediaUrl}
+                    alt="existing"
+                    className="media-thumb"
+                  />
+                );
+              })}
+          </div>
+        </div>
 
-        <button type="submit">Update</button>
+        {error && <div className="form-error">{error}</div>}
+
+        <button type="submit" className="btn-primary">Update Listing</button>
       </form>
     </div>
   );

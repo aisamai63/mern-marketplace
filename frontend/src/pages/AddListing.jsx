@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
 function AddListing() {
@@ -9,22 +9,10 @@ function AddListing() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
-  const [images, setImages] = useState([""]);
   const [mediaFiles, setMediaFiles] = useState([]);
   const [error, setError] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  const handleImageChange = (idx, value) => {
-    const newImages = [...images];
-    newImages[idx] = value;
-    setImages(newImages);
-  };
-
-  const addImageField = () => setImages([...images, ""]);
-
-  const removeImageField = (idx) =>
-    setImages(images.filter((_, i) => i !== idx));
 
   const handleMediaChange = (e) => {
     setMediaFiles(Array.from(e.target.files));
@@ -41,16 +29,12 @@ function AddListing() {
       formData.append("price", price);
       formData.append("category", category);
       formData.append("location", location);
-      formData.append("userId", user?._id);
       mediaFiles.forEach((file) => formData.append("media", file));
 
-      await axios.post("/api/listings", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${user?.token}`,
-        },
+      await api.post("/api/listings", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      navigate("/");
+      navigate("/listings");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add listing");
     }
@@ -70,11 +54,11 @@ function AddListing() {
   }, [previews]);
 
   return (
-    <div style={{ maxWidth: 400, margin: "2rem auto" }}>
+    <div className="form-page">
       <h2>Add Listing</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div>
+      <form onSubmit={handleSubmit} className="listing-form">
+        <div className="form-group">
           <label>Title</label>
           <input
             value={title}
@@ -83,7 +67,7 @@ function AddListing() {
           />
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Description</label>
           <textarea
             value={description}
@@ -92,7 +76,7 @@ function AddListing() {
           />
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Price</label>
           <input
             type="number"
@@ -102,7 +86,7 @@ function AddListing() {
           />
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Category</label>
           <input
             value={category}
@@ -111,7 +95,7 @@ function AddListing() {
           />
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Location</label>
           <input
             value={location}
@@ -120,7 +104,7 @@ function AddListing() {
           />
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Images / Videos</label>
           <input
             type="file"
@@ -128,9 +112,7 @@ function AddListing() {
             multiple
             onChange={handleMediaChange}
           />
-          <div
-            style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}
-          >
+          <div className="media-previews">
             {previews.map((preview, idx) => {
               if (preview.type.startsWith("image")) {
                 return (
@@ -138,13 +120,7 @@ function AddListing() {
                     key={idx}
                     src={preview.url}
                     alt="preview"
-                    style={{
-                      width: 60,
-                      height: 60,
-                      objectFit: "cover",
-                      borderRadius: 4,
-                      border: "1px solid #ccc",
-                    }}
+                    className="media-thumb"
                   />
                 );
               } else if (preview.type.startsWith("video")) {
@@ -152,25 +128,19 @@ function AddListing() {
                   <video
                     key={idx}
                     src={preview.url}
-                    style={{
-                      width: 60,
-                      height: 60,
-                      borderRadius: 4,
-                      border: "1px solid #ccc",
-                    }}
+                    className="media-thumb"
                     controls
                   />
                 );
-              } else {
-                return null;
               }
+              return null;
             })}
           </div>
         </div>
 
-        {error && <div style={{ color: "red" }}>{error}</div>}
+        {error && <div className="form-error">{error}</div>}
 
-        <button type="submit">Add</button>
+        <button type="submit" className="btn-primary">Add Listing</button>
       </form>
     </div>
   );
