@@ -9,13 +9,14 @@ const Wishlist = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     if (user) {
-      refreshFavorites().finally(() => setLoading(false));
+      refreshFavorites().finally(() => { if (mounted) setLoading(false); });
     } else {
       setLoading(false);
     }
-    // eslint-disable-next-line
-  }, [user]);
+    return () => { mounted = false; };
+  }, [refreshFavorites, user]);
 
   if (loading) return <div>Loading wishlist...</div>;
   if (!user) return <div>Please <Link to="/login">login</Link> to view your wishlist.</div>;

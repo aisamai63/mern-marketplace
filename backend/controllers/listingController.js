@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Listing = require("../models/Listing");
 const History = require("../models/History");
+const Message = require("../models/Message");
 const ApiError = require("../utils/ApiError");
 const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess } = require("../utils/apiResponse");
@@ -267,10 +268,46 @@ const deleteListing = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Handle contact/inquiry form for a listing
+// @route   POST /api/listings/:id/contact
+// @access  Private
+const sendInquiry = asyncHandler(async (req, res) => {
+  ensureObjectId(req.params.id, "listing id");
+  const { message } = req.body;
+  if (!message || typeof message !== "string" || !message.trim()) {
+    throw new ApiError(400, "Message is required");
+  }
+
+  const listing = await Listing.findById(req.params.id).populate(
+    "user",
+    "email name",
+  );
+  if (!listing) {
+    throw new ApiError(404, "Listing not found");
+  }
+
+  const sender = req.user;
+  const senderId = sender?._id?.toString();
+  const recipientId = listing.user?._id?.toString();
+  if (senderId && recipientId && senderId === recipientId) {
+    throw new ApiError(400, "You cannot send an inquiry to your own listing");
+  }
+
+  await Message.create({
+    listing: listing._id,
+    sender: sender._id,
+    recipient: listing.user._id,
+    body: message.trim(),
+  });
+
+  return sendSuccess(res, 200, { message: "Inquiry sent successfully." });
+});
+
 module.exports = {
   getListings,
   getListing,
   createListing,
   updateListing,
   deleteListing,
+  sendInquiry,
 };

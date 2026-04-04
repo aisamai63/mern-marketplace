@@ -42,7 +42,8 @@ exports.addFavorite = asyncHandler(async (req, res) => {
       user.favorites.push(listingId);
       await user.save();
     }
-    res.json({ success: true, favorites: user.favorites });
+    const { sendSuccess } = require("../utils/apiResponse");
+    sendSuccess(res, 200, { favorites: user.favorites });
   } catch (err) {
     console.error("addFavorite error:", err);
     res
@@ -62,7 +63,8 @@ exports.removeFavorite = asyncHandler(async (req, res) => {
     (favId) => favId.toString() !== listingId,
   );
   await user.save();
-  res.json({ success: true, favorites: user.favorites });
+  const { sendSuccess } = require("../utils/apiResponse");
+  sendSuccess(res, 200, { favorites: user.favorites });
 });
 
 // @desc    Get all favorite listings for current user
@@ -71,5 +73,6 @@ exports.removeFavorite = asyncHandler(async (req, res) => {
 exports.getFavorites = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).populate("favorites");
   if (!user) throw new ApiError(404, "User not found");
-  res.json({ success: true, favorites: user.favorites });
+  const { sendSuccess } = require("../utils/apiResponse");
+  sendSuccess(res, 200, { favorites: user.favorites });
 });

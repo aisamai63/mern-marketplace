@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import api from "../utils/api";
+import toast from "../utils/toast";
 
 const AuthContext = createContext();
 
@@ -74,20 +75,32 @@ export function AuthProvider({ children }) {
       } else if (data && data.favorites) {
         favorites = data.favorites;
       }
-      setUser((u) => ({ ...u, favorites }));
+      setUser((u) => {
+        if (!u) return u;
+        // Only update if favorites actually changed
+        const oldFavs = u.favorites || [];
+        const same = Array.isArray(favorites) && Array.isArray(oldFavs) && favorites.length === oldFavs.length && favorites.every((f, i) => f._id === oldFavs[i]?._id);
+        if (same) return u;
+        return { ...u, favorites };
+      });
       return favorites;
     } catch (e) { }
     return [];
   };
 
   const addFavorite = async (listingId) => {
-    if (!user) return;
+    if (!user) return false;
     try {
       const res = await api.post(`/api/users/favorites/${listingId}`);
       if (res.status >= 200 && res.status < 300) {
-        fetchFavorites();
+        await fetchFavorites();
+        toast.success("Added to your wishlist!");
+        return true;
       }
-    } catch (e) { }
+    } catch (e) {
+      toast.error("Failed to add to wishlist.");
+    }
+    return false;
   };
 
   const removeFavorite = async (listingId) => {

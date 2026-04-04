@@ -7,9 +7,11 @@ import {
 } from "react-router-dom";
 import "./App.css";
 import Navbar from "./components/Navbar";
+import AppToastContainer from "./components/AppToastContainer";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Listings from "./pages/Listings";
+import MyListings from "./pages/MyListings";
 import AddListing from "./pages/AddListing";
 import EditListing from "./pages/EditListing";
 import { AuthProvider } from "./context/AuthContext";
@@ -20,16 +22,19 @@ import Profile from "./pages/Profile";
 import ListingDetails from "./pages/ListingDetails";
 import Wishlist from "./pages/Wishlist";
 import AdminDashboard from "./pages/AdminDashboard";
+import Messages from "./pages/Messages";
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Navbar />
+        <AppToastContainer />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/listings" element={<Listings />} />
+          <Route path="/my-listings" element={<ProtectedRoute><MyListings /></ProtectedRoute>} />
           <Route
             path="/add-listing"
             element={
@@ -64,6 +69,7 @@ function App() {
           />
           <Route path="/listings/:id" element={<ListingDetails />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/listings" />} />
         </Routes>
       </Router>

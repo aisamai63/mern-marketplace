@@ -9,6 +9,7 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const listingRoutes = require("./routes/listingRoutes");
 const userRoutes = require("./routes/userRoutes");
+const messageRoutes = require("./routes/messageRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 dotenv.config({ path: path.resolve(__dirname, ".env") });
@@ -63,6 +64,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/listings", listingRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/messages", messageRoutes);
 
 // Global handlers
 app.use(notFound);

@@ -6,6 +6,7 @@ const {
   createListing,
   updateListing,
   deleteListing,
+  sendInquiry,
 } = require("../controllers/listingController");
 const {
   addReview,
@@ -22,6 +23,9 @@ const {
 } = require("../middleware/validationMiddleware");
 
 const upload = require("../middleware/uploadMiddleware");
+
+// Contact/inquiry endpoint
+router.post("/:id/contact", protect, sendInquiry);
 
 router.route("/").get(getListings).post(
   protect,

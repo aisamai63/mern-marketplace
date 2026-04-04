@@ -139,7 +139,16 @@ function Listings() {
         {listings.map((listing) => {
           const isFav = user?.favorites?.includes(listing._id);
           return (
-            <div key={listing._id} className="listing-card">
+            <div
+              key={listing._id}
+              className="listing-card"
+              style={{ cursor: "pointer" }}
+              onClick={e => {
+                // Prevent navigation if clicking on a button inside the card
+                if (e.target.tagName === "BUTTON" || e.target.closest("button")) return;
+                navigate(`/listings/${listing._id}`);
+              }}
+            >
               {listing.images && listing.images.length > 0 && (
                 <div className="listing-card-media">
                   {isVideoMedia(listing.images[0]) ? (
@@ -162,11 +171,11 @@ function Listings() {
                 <p className="listing-card-desc">{listing.description}</p>
                 <p className="listing-card-price">${listing.price}</p>
                 <div className="listing-card-actions">
-                  <button onClick={() => navigate(`/listings/${listing._id}`)}>
+                  <button onClick={e => { e.stopPropagation(); navigate(`/listings/${listing._id}`); }}>
                     View
                   </button>
                   {user && listing.user?._id === user._id && (
-                    <button onClick={() => navigate(`/edit-listing/${listing._id}`)}>
+                    <button onClick={e => { e.stopPropagation(); navigate(`/edit-listing/${listing._id}`); }}>
                       Edit
                     </button>
                   )}
@@ -174,9 +183,10 @@ function Listings() {
                     <button
                       aria-label={isFav ? "Remove from wishlist" : "Add to wishlist"}
                       className={`btn-fav${isFav ? " active" : ""}`}
-                      onClick={() =>
-                        isFav ? removeFavorite(listing._id) : addFavorite(listing._id)
-                      }
+                      onClick={e => {
+                        e.stopPropagation();
+                        isFav ? removeFavorite(listing._id) : addFavorite(listing._id);
+                      }}
                     >
                       {isFav ? "♥" : "♡"}
                     </button>

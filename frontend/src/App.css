@@ -9,8 +9,9 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
   background: #f5f6fa;
   color: #222;
   line-height: 1.5;
@@ -147,6 +148,24 @@ textarea {
 .navbar-links button:hover {
   color: #1976d2;
   background: none;
+}
+
+.navbar-messages-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.navbar-badge {
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #d32f2f;
+  color: #fff;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  padding: 0 6px;
 }
 
 .navbar-toggle {
@@ -294,6 +313,7 @@ textarea {
   color: #666;
   flex: 1;
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -311,6 +331,67 @@ textarea {
   gap: 8px;
   margin-top: 8px;
   flex-wrap: wrap;
+}
+
+/* =============================================
+   Messages page
+   ============================================= */
+.messages-page {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.messages-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.messages-header h2 {
+  margin: 0;
+}
+
+.messages-header p {
+  margin: 0;
+  color: #555;
+}
+
+.messages-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.message-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+  border-left: 4px solid transparent;
+  padding: 0.9rem 1rem;
+}
+
+.message-card.unread {
+  border-left-color: #1976d2;
+}
+
+.message-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  font-size: 13px;
+  color: #555;
+}
+
+.message-listing-ref {
+  margin: 0.5rem 0;
+  font-size: 14px;
+}
+
+.message-body {
+  margin: 0 0 0.75rem;
+  white-space: pre-wrap;
 }
 
 .btn-fav {
