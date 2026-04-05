@@ -21,6 +21,12 @@ export function AuthProvider({ children }) {
 
   // On mount, re-validate the stored token against /api/auth/me
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && stored) {
+    const parsedUser = JSON.parse(stored);
+    setUser({ ...parsedUser, token });
+ } 
+ 
     const stored = localStorage.getItem("user");
     if (!stored) return;
     let parsed;
@@ -48,15 +54,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Accepts the full backend response and stores user+token
-  const login = (data) => {
-    if (data && data.user && data.token) {
-      setUser({ ...data.user, token: data.token });
-    } else if (data && data.token) {
-      setUser(data);
-    } else {
-      setUser(data);
-    }
-  };
+ const login = (data) => {
+  if (data?.token) {
+    localStorage.setItem("token", data.token); // store token separately
+  }
+
+  if (data && data.user && data.token) {
+    setUser({ ...data.user, token: data.token });
+  } else {
+    setUser(data);
+  }
+};
 
   // Merge a partial update into the current user (used after profile edits)
   const updateUser = (partial) => {
@@ -113,16 +121,21 @@ export function AuthProvider({ children }) {
     } catch (e) { }
   };
 
-  const logout = () => setUser(null);
+const logout = () => {
+  localStorage.removeItem("token"); //  removed token
+  setUser(null);
+};
 
   // Expose favorites and refreshFavorites for easier consumption
   const favorites = user?.favorites || [];
   const refreshFavorites = fetchFavorites;
+  const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        isAuthenticated,
         favorites,
         login,
         logout,

@@ -81,16 +81,22 @@ function Navbar() {
               )}
             </Link>
             <Link to="/wishlist" onClick={closeMenu}>Wishlist</Link>
-            {user.role === "admin" && (
+
+            {user?.role === "admin" && (
               <Link to="/admin" onClick={closeMenu}>Admin</Link>
             )}
+
             <button onClick={() => { navigate("/profile"); closeMenu(); }}>
               Profile
             </button>
+
             <button onClick={handleLogout}>Logout</button>
           </>
         ) : (
-          <Link to="/login" onClick={closeMenu}>Login</Link>
+          <>
+            <Link to="/login" onClick={closeMenu}>Login</Link>
+            <Link to="/register" onClick={closeMenu}>Register</Link>
+          </>
         )}
       </div>
     </nav>

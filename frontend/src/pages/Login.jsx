@@ -7,19 +7,26 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
+
     try {
       const res = await api.post("/api/auth/login", { email, password });
       login(res.data.data); // Store user and token from backend response
       navigate("/listings");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      setError(err.response?.data?.message || "Invalid email or password");
+    } finally {
+      setLoading(false);
     }
+
   };
 
   return (
@@ -45,7 +52,9 @@ function Login() {
           />
         </div>
         {error && <div className="form-error">{error}</div>}
-        <button type="submit" className="btn-primary">Login</button>
+        <button type="submit" className="btn-primary"disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
       </form>
       <p>
         Don't have an account? <Link to="/register">Register</Link>
