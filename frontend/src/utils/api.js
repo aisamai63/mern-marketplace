@@ -1,6 +1,14 @@
 import axios from "axios";
 
-const api = axios.create();
+const trimTrailingSlash = (value) => value.replace(/\/+$/, "");
+const backendOrigin = trimTrailingSlash(
+  (import.meta.env.VITE_BACKEND_ORIGIN || "").trim(),
+);
+
+const api = axios.create({
+  // Keep relative /api calls for local Vite proxy, but support explicit backend origin in production.
+  baseURL: backendOrigin || undefined,
+});
 
 // Inject the auth token from localStorage on every request
 api.interceptors.request.use((config) => {
@@ -28,7 +36,7 @@ api.interceptors.response.use(
       window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
