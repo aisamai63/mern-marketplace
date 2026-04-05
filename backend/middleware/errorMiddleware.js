@@ -26,6 +26,10 @@ const errorHandler = (err, req, res, next) => {
     message = "Duplicate field value entered";
   }
 
+  if (statusCode >= 500 && process.env.NODE_ENV !== "development") {
+    message = "Internal server error";
+  }
+
   res.status(statusCode).json({
     success: false,
     message,

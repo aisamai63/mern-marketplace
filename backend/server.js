@@ -5,14 +5,17 @@ const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+
+// Load env from backend/.env, then allow root/.env as fallback for monorepo setups.
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
+
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const listingRoutes = require("./routes/listingRoutes");
 const userRoutes = require("./routes/userRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
-
-dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const app = express();
 const morganFormat = process.env.NODE_ENV === "production" ? "combined" : "dev";
@@ -76,6 +79,10 @@ let server;
 
 const startServer = async () => {
   try {
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not configured");
+    }
+
     await connectDB();
     server = app.listen(PORT, () => {
       console.log(
