@@ -80,6 +80,7 @@ function Navbar() {
                 </span>
               )}
             </Link>
+            <Link to="/history" onClick={closeMenu}>History</Link>
             <Link to="/wishlist" onClick={closeMenu}>Wishlist</Link>
 
             {user?.role === "admin" && (

@@ -23,6 +23,7 @@ import ListingDetails from "./pages/ListingDetails";
 import Wishlist from "./pages/Wishlist";
 import AdminDashboard from "./pages/AdminDashboard";
 import Messages from "./pages/Messages";
+import History from "./pages/History";
 
 function App() {
   return (
@@ -60,6 +61,14 @@ function App() {
             }
           />
           <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <History />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin"
             element={
               <AdminRoute>
@@ -68,7 +77,14 @@ function App() {
             }
           />
           <Route path="/listings/:id" element={<ListingDetails />} />
-          <Route path="/wishlist" element={<Wishlist />} />
+          <Route
+            path="/wishlist"
+            element={
+              <ProtectedRoute>
+                <Wishlist />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/listings" />} />
         </Routes>

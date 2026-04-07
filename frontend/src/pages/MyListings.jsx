@@ -13,7 +13,7 @@ export default function MyListings() {
   useEffect(() => {
     if (!user) return;
     setLoading(true);
-    api.get("/api/listings", { params: { user: user._id } })
+    api.get("/api/listings/me")
       .then(res => {
         const items = res.data.items || res.data.listings || res.data.data?.items || res.data.data || [];
         setListings(Array.isArray(items) ? items : []);

@@ -145,6 +145,22 @@ const getListings = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get authenticated user's listings
+// @route   GET /api/listings/me
+// @access  Private
+const getMyListings = asyncHandler(async (req, res) => {
+  const userId = getAuthenticatedUserId(req);
+
+  const listings = await Listing.find({ user: userId })
+    .populate("user", "name email")
+    .sort({ createdAt: -1 });
+
+  return sendSuccess(res, 200, {
+    count: listings.length,
+    items: listings,
+  });
+});
+
 // @desc    Get single listing
 // @route   GET /api/listings/:id
 // @access  Public
@@ -305,6 +321,7 @@ const sendInquiry = asyncHandler(async (req, res) => {
 
 module.exports = {
   getListings,
+  getMyListings,
   getListing,
   createListing,
   updateListing,

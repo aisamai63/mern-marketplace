@@ -1,6 +1,8 @@
 const User = require("../models/User");
+const History = require("../models/History");
 const asyncHandler = require("../utils/asyncHandler");
 const ApiError = require("../utils/ApiError");
+const { sendSuccess } = require("../utils/apiResponse");
 
 // @desc    Get current user's profile
 // @route   GET /api/users/me
@@ -33,23 +35,16 @@ exports.updateMe = asyncHandler(async (req, res) => {
 // @route   POST /api/users/favorites/:listingId
 // @access  Private
 exports.addFavorite = asyncHandler(async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-    if (!user) throw new ApiError(404, "User not found");
-    const listingId = req.params.listingId;
-    // Compare ObjectIds as strings to avoid duplicate favorites
-    if (!user.favorites.some((favId) => favId.toString() === listingId)) {
-      user.favorites.push(listingId);
-      await user.save();
-    }
-    const { sendSuccess } = require("../utils/apiResponse");
-    sendSuccess(res, 200, { favorites: user.favorites });
-  } catch (err) {
-    console.error("addFavorite error:", err);
-    res
-      .status(500)
-      .json({ success: false, message: err.message, stack: err.stack });
+  const user = await User.findById(req.user._id);
+  if (!user) throw new ApiError(404, "User not found");
+  const listingId = req.params.listingId;
+  // Compare ObjectIds as strings to avoid duplicate favorites
+  if (!user.favorites.some((favId) => favId.toString() === listingId)) {
+    user.favorites.push(listingId);
+    await user.save();
   }
+
+  sendSuccess(res, 200, { favorites: user.favorites });
 });
 
 // @desc    Remove a listing from favorites
@@ -63,7 +58,6 @@ exports.removeFavorite = asyncHandler(async (req, res) => {
     (favId) => favId.toString() !== listingId,
   );
   await user.save();
-  const { sendSuccess } = require("../utils/apiResponse");
   sendSuccess(res, 200, { favorites: user.favorites });
 });
 
@@ -73,6 +67,20 @@ exports.removeFavorite = asyncHandler(async (req, res) => {
 exports.getFavorites = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).populate("favorites");
   if (!user) throw new ApiError(404, "User not found");
-  const { sendSuccess } = require("../utils/apiResponse");
   sendSuccess(res, 200, { favorites: user.favorites });
+});
+
+// @desc    Get authenticated user's activity history
+// @route   GET /api/users/history
+// @access  Private
+exports.getHistory = asyncHandler(async (req, res) => {
+  const historyItems = await History.find({ user: req.user._id })
+    .populate("listing", "title status price")
+    .sort({ createdAt: -1 })
+    .limit(50);
+
+  sendSuccess(res, 200, {
+    count: historyItems.length,
+    items: historyItems,
+  });
 });

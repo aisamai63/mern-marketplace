@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {
   getListings,
+  getMyListings,
   getListing,
   createListing,
   updateListing,
@@ -26,6 +27,9 @@ const upload = require("../middleware/uploadMiddleware");
 
 // Contact/inquiry endpoint
 router.post("/:id/contact", protect, sendInquiry);
+
+// Authenticated user listings
+router.get("/me", protect, getMyListings);
 
 router.route("/").get(getListings).post(
   protect,

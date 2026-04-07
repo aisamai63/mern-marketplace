@@ -27,12 +27,11 @@ function Profile() {
       .catch(() => setError("Failed to load profile"));
 
     api
-      .get("/api/listings")
+      .get("/api/listings/me")
       .then((res) => {
-        if (Array.isArray(res.data?.data?.items)) {
-          setListings(
-            res.data.data.items.filter((l) => l.user._id === user._id),
-          );
+        const items = res.data?.data?.items;
+        if (Array.isArray(items)) {
+          setListings(items);
         }
       });
   }, [user]);

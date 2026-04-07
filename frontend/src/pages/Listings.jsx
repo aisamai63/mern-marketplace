@@ -137,7 +137,9 @@ function Listings() {
 
       <div className="listings-grid">
         {listings.map((listing) => {
-          const isFav = user?.favorites?.includes(listing._id);
+          const isFav = user?.favorites?.some(
+            (fav) => (fav?._id || fav) === listing._id,
+          );
           return (
             <div
               key={listing._id}
