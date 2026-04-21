@@ -45,7 +45,12 @@ const authLimiter = rateLimit({
 
 // Middleware
 app.disable("x-powered-by");
-app.use(helmet());
+app.use(
+  helmet({
+    // Allow frontend apps on different origins (e.g. localhost:5173) to load /uploads media.
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 app.use(express.json());
 app.use(cors());
 app.use(morgan(morganFormat));

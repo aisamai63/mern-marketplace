@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import { isVideoMedia, resolveMediaUrl } from "../utils/media";
+import SafeImage from "../components/SafeImage";
 
 function Listings() {
   const [listings, setListings] = useState([]);
@@ -189,8 +190,10 @@ function Listings() {
                       controls
                     />
                   ) : (
-                    <img
-                      src={resolveMediaUrl(listing.images[0])}
+                    <SafeImage
+                      media={listing.images[0]}
+                      title={listing.title}
+                      seed={listing._id}
                       alt={listing.title}
                       className="listing-card-thumb"
                     />

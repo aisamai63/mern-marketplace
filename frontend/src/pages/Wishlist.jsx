@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
-import { resolveMediaUrl } from "../utils/media";
+import SafeImage from "../components/SafeImage";
 
 const Wishlist = () => {
   const { user, favorites, refreshFavorites, removeFavorite } = useAuth();
@@ -58,17 +58,12 @@ const Wishlist = () => {
           {favorites.map((listing) => (
             <div key={listing._id} className="wishlist__card wishlist-card">
               <Link to={`/listings/${listing._id}`} className="wishlist__card-link">
-                <img
-                  src={
-                    listing.images && listing.images.length > 0
-                      ? resolveMediaUrl(listing.images[0])
-                      : "/default-image.jpg"
-                  }
+                <SafeImage
+                  media={listing.images?.[0] || ""}
+                  title={listing.title}
+                  seed={listing._id}
                   alt={listing.title}
                   className="wishlist__image wishlist-image"
-                  onError={(e) => {
-                    e.currentTarget.src = "/default-image.jpg";
-                  }}
                 />
                 <h3 className="wishlist__card-title">{listing.title}</h3>
               </Link>

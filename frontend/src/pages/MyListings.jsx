@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { isVideoMedia, resolveMediaUrl } from "../utils/media";
+import SafeImage from "../components/SafeImage";
 import api from "../utils/api";
 
 export default function MyListings() {
@@ -86,8 +87,10 @@ export default function MyListings() {
                       controls
                     />
                   ) : (
-                    <img
-                      src={resolveMediaUrl(listing.images[0])}
+                    <SafeImage
+                      media={listing.images[0]}
+                      title={listing.title}
+                      seed={listing._id}
                       alt={listing.title}
                       className="my-listings__card-thumb listing-card-thumb"
                     />

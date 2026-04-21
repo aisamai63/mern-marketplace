@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const fs = require("fs");
+const path = require("path");
 const Listing = require("../models/Listing");
 const History = require("../models/History");
 const Message = require("../models/Message");
@@ -16,9 +18,54 @@ const ALLOWED_UPDATE_FIELDS = [
   "location",
   "status",
 ];
+const HTTP_URL_REGEX = /^https?:\/\//i;
+const UPLOADS_ROUTE_PREFIX = "/uploads/";
+const DEFAULT_MEDIA_PATH = `${UPLOADS_ROUTE_PREFIX}default-media.svg`;
+const uploadsDir = path.join(__dirname, "../uploads");
 
 const normalizeString = (value) =>
   typeof value === "string" ? value.trim() : value;
+
+const normalizeMediaPath = (value) => {
+  if (typeof value !== "string") return "";
+
+  const trimmed = value.trim().replace(/\\/g, "/");
+  if (!trimmed) return "";
+  if (HTTP_URL_REGEX.test(trimmed)) return trimmed;
+
+  const withoutHost = trimmed.replace(/^https?:\/\/[^/]+/i, "");
+  const withUploads = withoutHost.includes("/")
+    ? withoutHost
+    : `${UPLOADS_ROUTE_PREFIX}${withoutHost}`;
+
+  return withUploads.startsWith("/") ? withUploads : `/${withUploads}`;
+};
+
+const resolveMediaForResponse = (value) => {
+  const normalized = normalizeMediaPath(value);
+  if (!normalized) return "";
+  if (HTTP_URL_REGEX.test(normalized)) return normalized;
+  if (!normalized.startsWith(UPLOADS_ROUTE_PREFIX)) return normalized;
+
+  const filename = path.basename(normalized);
+  if (!filename) return DEFAULT_MEDIA_PATH;
+
+  const absolutePath = path.join(uploadsDir, filename);
+  return fs.existsSync(absolutePath)
+    ? `${UPLOADS_ROUTE_PREFIX}${filename}`
+    : DEFAULT_MEDIA_PATH;
+};
+
+const sanitizeListingMedia = (listing) => {
+  if (!listing) return listing;
+
+  const plain =
+    typeof listing.toObject === "function" ? listing.toObject() : listing;
+  const images = Array.isArray(plain.images) ? plain.images : [];
+
+  plain.images = images.map(resolveMediaForResponse).filter(Boolean);
+  return plain;
+};
 
 const ensureObjectId = (id, label) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -50,7 +97,7 @@ const parseImages = (images) => {
   }
 
   return images
-    .map((img) => normalizeString(img))
+    .map((img) => normalizeMediaPath(normalizeString(img)))
     .filter((img) => typeof img === "string" && img.length > 0);
 };
 
@@ -141,7 +188,7 @@ const getListings = asyncHandler(async (req, res) => {
 
   return sendSuccess(res, 200, {
     count: listings.length,
-    items: listings,
+    items: listings.map(sanitizeListingMedia),
   });
 });
 
@@ -157,7 +204,7 @@ const getMyListings = asyncHandler(async (req, res) => {
 
   return sendSuccess(res, 200, {
     count: listings.length,
-    items: listings,
+    items: listings.map(sanitizeListingMedia),
   });
 });
 
@@ -175,7 +222,7 @@ const getListing = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Listing not found");
   }
 
-  return sendSuccess(res, 200, listing);
+  return sendSuccess(res, 200, sanitizeListingMedia(listing));
 });
 
 // @desc    Create new listing
@@ -213,7 +260,7 @@ const createListing = asyncHandler(async (req, res) => {
     listing: listing._id,
   });
 
-  return sendSuccess(res, 201, listing);
+  return sendSuccess(res, 201, sanitizeListingMedia(listing));
 });
 
 // @desc    Update listing
@@ -251,7 +298,7 @@ const updateListing = asyncHandler(async (req, res) => {
     listing: listing._id,
   });
 
-  return sendSuccess(res, 200, listing);
+  return sendSuccess(res, 200, sanitizeListingMedia(listing));
 });
 
 // @desc    Delete listing

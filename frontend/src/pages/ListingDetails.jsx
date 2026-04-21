@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { isVideoMedia, resolveMediaUrl } from "../utils/media";
+import SafeImage from "../components/SafeImage";
 import Reviews from "../components/Reviews";
 import { useAuth } from "../context/AuthContext";
 import toast from "../utils/toast";
@@ -81,14 +82,13 @@ export default function ListingDetails() {
                     controls
                   />
                 ) : (
-                  <img
+                  <SafeImage
                     key={idx}
-                    src={resolveMediaUrl(media)}
+                    media={media}
+                    title={listing.title}
+                    seed={`${listing._id}-${idx}`}
                     alt={`${listing.title} ${idx + 1}`}
                     className="listing-details__media-item listing-media-item"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
                   />
                 ),
               )}
