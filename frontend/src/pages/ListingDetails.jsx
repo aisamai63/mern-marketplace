@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { isVideoMedia, resolveMediaUrl } from "../utils/media";
 import SafeImage from "../components/SafeImage";
 import Reviews from "../components/Reviews";
@@ -9,11 +9,13 @@ import api from "../utils/api";
 
 export default function ListingDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user, addFavorite, removeFavorite } = useAuth();
   const [contactMsg, setContactMsg] = useState("");
   const [contactLoading, setContactLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -158,6 +160,32 @@ export default function ListingDetails() {
               <div className="listing-details__info-banner info-banner">
                 This is your listing. The contact form is available only to buyers.
               </div>
+            )}
+
+            {user && isOwner && (
+              <button
+                type="button"
+                className="listing-details__delete-btn"
+                disabled={deleteLoading}
+                onClick={async () => {
+                  if (!window.confirm("Delete this listing? This action cannot be undone.")) {
+                    return;
+                  }
+
+                  setDeleteLoading(true);
+                  try {
+                    await api.delete(`/api/listings/${listing._id}`);
+                    toast.success("Listing deleted.");
+                    navigate("/my-listings");
+                  } catch (err) {
+                    toast.error(err?.response?.data?.message || "Failed to delete listing.");
+                  } finally {
+                    setDeleteLoading(false);
+                  }
+                }}
+              >
+                {deleteLoading ? "Deleting..." : "Delete Listing"}
+              </button>
             )}
 
             {user && !isOwner && (

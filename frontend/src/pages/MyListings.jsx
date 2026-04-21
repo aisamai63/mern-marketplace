@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { isVideoMedia, resolveMediaUrl } from "../utils/media";
 import SafeImage from "../components/SafeImage";
 import api from "../utils/api";
+import toast from "../utils/toast";
 
 export default function MyListings() {
   const { user } = useAuth();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletingId, setDeletingId] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,6 +36,24 @@ export default function MyListings() {
       })
       .finally(() => setLoading(false));
   }, [user]);
+
+  const handleDeleteListing = async (listingId) => {
+    if (!listingId) return;
+    if (!window.confirm("Delete this listing? This action cannot be undone.")) {
+      return;
+    }
+
+    setDeletingId(listingId);
+    try {
+      await api.delete(`/api/listings/${listingId}`);
+      setListings((prev) => prev.filter((item) => item._id !== listingId));
+      toast.success("Listing deleted.");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to delete listing.");
+    } finally {
+      setDeletingId("");
+    }
+  };
 
   if (!user) {
     return (
@@ -122,6 +142,14 @@ export default function MyListings() {
                     onClick={() => navigate(`/listings/${listing._id}`)}
                   >
                     View
+                  </button>
+                  <button
+                    type="button"
+                    className="my-listings__delete-btn"
+                    onClick={() => handleDeleteListing(listing._id)}
+                    disabled={deletingId === listing._id}
+                  >
+                    {deletingId === listing._id ? "Deleting..." : "Delete"}
                   </button>
                 </div>
               </div>
