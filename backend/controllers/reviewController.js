@@ -13,7 +13,7 @@ const ensureObjectId = (id, label) => {
 
 const recalcListingStats = async (listingId) => {
   const stats = await Review.aggregate([
-    { $match: { listing: mongoose.Types.ObjectId(listingId) } },
+    { $match: { listing: new mongoose.Types.ObjectId(listingId) } },
     {
       $group: {
         _id: "$listing",
@@ -34,6 +34,15 @@ const recalcListingStats = async (listingId) => {
       averageRating: 0,
       reviewsCount: 0,
     });
+  }
+};
+
+const recalcListingStatsSafe = async (listingId) => {
+  try {
+    await recalcListingStats(listingId);
+  } catch (error) {
+    // Do not fail review mutations if aggregate stats recalculation has an issue.
+    console.error(`Failed to recalculate listing stats for ${listingId}:`, error.message);
   }
 };
 
@@ -60,7 +69,7 @@ const addReview = asyncHandler(async (req, res) => {
     existing.rating = numericRating;
     existing.comment = comment || "";
     await existing.save();
-    await recalcListingStats(listingId);
+    await recalcListingStatsSafe(listingId);
     return sendSuccess(res, 200, existing);
   }
 
@@ -72,7 +81,7 @@ const addReview = asyncHandler(async (req, res) => {
     status: "approved", // Auto-approve on submission
   });
 
-  await recalcListingStats(listingId);
+  await recalcListingStatsSafe(listingId);
 
   return sendSuccess(res, 201, review);
 });
@@ -126,7 +135,7 @@ const updateReview = asyncHandler(async (req, res) => {
   if (req.body.comment !== undefined) review.comment = req.body.comment;
 
   await review.save();
-  await recalcListingStats(req.params.id);
+  await recalcListingStatsSafe(req.params.id);
 
   return sendSuccess(res, 200, review);
 });
@@ -145,7 +154,7 @@ const deleteReview = asyncHandler(async (req, res) => {
   }
 
   await Review.findByIdAndDelete(req.params.reviewId);
-  await recalcListingStats(req.params.id);
+  await recalcListingStatsSafe(req.params.id);
 
   return sendSuccess(res, 200, { id: req.params.reviewId });
 });
@@ -164,7 +173,7 @@ const approveReview = asyncHandler(async (req, res) => {
   review.moderatedAt = new Date();
   review.moderationReason = "";
   await review.save();
-  await recalcListingStats(req.params.id);
+  await recalcListingStatsSafe(req.params.id);
   return sendSuccess(res, 200, review);
 });
 
@@ -182,7 +191,7 @@ const rejectReview = asyncHandler(async (req, res) => {
   review.moderatedAt = new Date();
   review.moderationReason = req.body.reason || "";
   await review.save();
-  await recalcListingStats(req.params.id);
+  await recalcListingStatsSafe(req.params.id);
   return sendSuccess(res, 200, review);
 });
 

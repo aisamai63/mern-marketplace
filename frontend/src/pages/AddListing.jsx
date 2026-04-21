@@ -2,12 +2,13 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
+import { LISTING_CATEGORIES } from "../constants/categories";
 
 function AddListing() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(LISTING_CATEGORIES[0] || "");
   const [location, setLocation] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]);
   const [error, setError] = useState("");
@@ -99,12 +100,18 @@ function AddListing() {
 
         <div className="add-listing__form-group form-group">
           <label className="add-listing__label">Category</label>
-          <input
+          <select
             className="add-listing__input"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required
-          />
+          >
+            {LISTING_CATEGORIES.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="add-listing__form-group form-group">

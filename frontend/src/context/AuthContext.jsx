@@ -48,9 +48,11 @@ export function AuthProvider({ children }) {
           setUser((prev) => ({ ...fresh, token: prev?.token || parsed.token }));
         }
       })
-      .catch(() => {
-        // Token is invalid/expired — clear auth state
-        setUser(null);
+      .catch((err) => {
+        const status = err?.response?.status;
+        if (status === 401 || status === 403) {
+          setUser(null);
+        }
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -156,3 +158,5 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
+
+

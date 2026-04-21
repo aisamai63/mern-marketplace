@@ -68,8 +68,8 @@ export default function Reviews({ listingId }) {
       }
       setPage(1);
       fetchReviews(true, 1);
-    } catch (_) {
-      window.alert("Failed to submit review");
+    } catch (err) {
+      window.alert(err?.response?.data?.message || "Failed to submit review");
     }
   };
 
@@ -84,8 +84,8 @@ export default function Reviews({ listingId }) {
       await api.delete(`/api/listings/${listingId}/reviews/${reviewId}`);
       setPage(1);
       fetchReviews(true, 1);
-    } catch (_) {
-      window.alert("Delete failed");
+    } catch (err) {
+      window.alert(err?.response?.data?.message || "Delete failed");
     }
   };
 

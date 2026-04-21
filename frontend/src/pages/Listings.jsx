@@ -4,6 +4,7 @@ import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import { isVideoMedia, resolveMediaUrl } from "../utils/media";
 import SafeImage from "../components/SafeImage";
+import { LISTING_CATEGORIES } from "../constants/categories";
 
 function Listings() {
   const [listings, setListings] = useState([]);
@@ -19,7 +20,7 @@ function Listings() {
   const [location, setLocation] = useState("");
   const [sort, setSort] = useState("");
 
-  const categories = ["", "Electronics", "Books", "Clothing", "Home", "Other"];
+  const categories = ["", ...LISTING_CATEGORIES];
 
   const sortOptions = [
     { value: "", label: "Sort By" },

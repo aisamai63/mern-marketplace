@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import { isVideoMedia, resolveMediaUrl } from "../utils/media";
+import { LISTING_CATEGORIES } from "../constants/categories";
 
 function EditListing() {
   const { id } = useParams();
@@ -17,6 +18,9 @@ function EditListing() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const categoryOptions = LISTING_CATEGORIES.includes(category)
+    ? LISTING_CATEGORIES
+    : [category, ...LISTING_CATEGORIES].filter(Boolean);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -125,11 +129,17 @@ function EditListing() {
 
         <div className="edit-listing__form-group form-group">
           <label className="edit-listing__label">Category</label>
-          <input
+          <select
             className="edit-listing__input"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-          />
+          >
+            {categoryOptions.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="edit-listing__form-group form-group">
