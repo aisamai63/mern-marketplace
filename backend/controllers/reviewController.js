@@ -13,7 +13,12 @@ const ensureObjectId = (id, label) => {
 
 const recalcListingStats = async (listingId) => {
   const stats = await Review.aggregate([
-    { $match: { listing: new mongoose.Types.ObjectId(listingId) } },
+    {
+      $match: {
+        listing: new mongoose.Types.ObjectId(listingId),
+        status: "approved",
+      },
+    },
     {
       $group: {
         _id: "$listing",
@@ -68,6 +73,12 @@ const addReview = asyncHandler(async (req, res) => {
   if (existing) {
     existing.rating = numericRating;
     existing.comment = comment || "";
+    if (req.user.role !== "admin") {
+      existing.status = "pending";
+      existing.moderatedBy = undefined;
+      existing.moderatedAt = undefined;
+      existing.moderationReason = "";
+    }
     await existing.save();
     await recalcListingStatsSafe(listingId);
     return sendSuccess(res, 200, existing);
@@ -78,7 +89,7 @@ const addReview = asyncHandler(async (req, res) => {
     user: userId,
     rating: numericRating,
     comment: comment || "",
-    status: "approved", // Auto-approve on submission
+    status: "pending",
   });
 
   await recalcListingStatsSafe(listingId);
@@ -117,6 +128,9 @@ const updateReview = asyncHandler(async (req, res) => {
 
   const review = await Review.findById(req.params.reviewId);
   if (!review) throw new ApiError(404, "Review not found");
+  if (review.listing.toString() !== req.params.id) {
+    throw new ApiError(400, "Review does not belong to this listing");
+  }
   if (review.user.toString() !== userId && req.user.role !== "admin") {
     throw new ApiError(403, "Not authorized to update this review");
   }
@@ -133,6 +147,12 @@ const updateReview = asyncHandler(async (req, res) => {
     review.rating = numericRating;
   }
   if (req.body.comment !== undefined) review.comment = req.body.comment;
+  if (review.user.toString() === userId && req.user.role !== "admin") {
+    review.status = "pending";
+    review.moderatedBy = undefined;
+    review.moderatedAt = undefined;
+    review.moderationReason = "";
+  }
 
   await review.save();
   await recalcListingStatsSafe(req.params.id);
@@ -149,6 +169,9 @@ const deleteReview = asyncHandler(async (req, res) => {
 
   const review = await Review.findById(req.params.reviewId);
   if (!review) throw new ApiError(404, "Review not found");
+  if (review.listing.toString() !== req.params.id) {
+    throw new ApiError(400, "Review does not belong to this listing");
+  }
   if (review.user.toString() !== userId && req.user.role !== "admin") {
     throw new ApiError(403, "Not authorized to delete this review");
   }
@@ -168,6 +191,9 @@ const approveReview = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Admin only");
   const review = await Review.findById(req.params.reviewId);
   if (!review) throw new ApiError(404, "Review not found");
+  if (review.listing.toString() !== req.params.id) {
+    throw new ApiError(400, "Review does not belong to this listing");
+  }
   review.status = "approved";
   review.moderatedBy = req.user._id;
   review.moderatedAt = new Date();
@@ -186,6 +212,9 @@ const rejectReview = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Admin only");
   const review = await Review.findById(req.params.reviewId);
   if (!review) throw new ApiError(404, "Review not found");
+  if (review.listing.toString() !== req.params.id) {
+    throw new ApiError(400, "Review does not belong to this listing");
+  }
   review.status = "rejected";
   review.moderatedBy = req.user._id;
   review.moderatedAt = new Date();

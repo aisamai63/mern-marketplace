@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import StarRating from "./StarRating";
+import toast from "../utils/toast";
 
 export default function Reviews({ listingId }) {
   const { user } = useAuth();
@@ -61,10 +62,12 @@ export default function Reviews({ listingId }) {
         setEditId(null);
         setEditRating(5);
         setEditComment("");
+        toast.info("Review updated and sent for admin approval.");
       } else {
         await api.post(`/api/listings/${listingId}/reviews`, { rating, comment });
         setComment("");
         setRating(5);
+        toast.info("Review submitted and pending admin approval.");
       }
       setPage(1);
       fetchReviews(true, 1);
