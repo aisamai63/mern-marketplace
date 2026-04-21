@@ -20,6 +20,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "start": "vite preview",
     "test": "echo \"No test runner configured. Use Vitest or another test runner.\" && exit 0"
   },
   "eslintConfig": {

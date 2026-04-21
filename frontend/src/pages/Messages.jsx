@@ -38,7 +38,7 @@ export default function Messages() {
         if (active) {
           setMessages(Array.isArray(items) ? items : []);
         }
-      } catch (error) {
+      } catch (_) {
         if (active) {
           toast.error("Failed to load messages.");
           setMessages([]);
@@ -70,7 +70,7 @@ export default function Messages() {
             : msg,
         ),
       );
-    } catch (error) {
+    } catch (_) {
       toast.error("Failed to mark message as read.");
     } finally {
       setMarkingId("");
@@ -78,60 +78,70 @@ export default function Messages() {
   };
 
   if (loading) {
-    return <div className="messages-page">Loading messages...</div>;
-  }
-
-  if (!user) {
     return (
-      <div className="messages-page">
-        Please <Link to="/login">login</Link> to view your messages.
+      <div className="messages page-shell messages--centered centered-page-message">
+        <div className="messages__status-panel status-panel">Loading messages...</div>
       </div>
     );
   }
 
-  if (!messages.length) {
-    return <div className="messages-page">No messages yet.</div>;
+  if (!user) {
+    return (
+      <div className="messages page-shell messages--centered centered-page-message">
+        <div className="messages__info-banner info-banner">
+          Please <Link to="/login">login</Link> to view your messages.
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="messages-page">
-      <div className="messages-header">
-        <h2>Your Messages</h2>
-        <p>{unreadCount} unread</p>
+    <div className="messages page-shell messages-page">
+      <div className="messages__header messages-header">
+        <div className="messages__header-content">
+          <span className="messages__kicker page-kicker">Inbox</span>
+          <h2 className="messages__title">Your Messages</h2>
+          <p className="messages__subtitle page-subtitle">Buyer and seller conversations in one place.</p>
+        </div>
+        <p className="messages__unread-count">{unreadCount} unread</p>
       </div>
 
-      <div className="messages-list">
-        {messages.map((msg) => (
-          <article
-            key={msg._id}
-            className={`message-card${msg.readAt ? "" : " unread"}`}
-          >
-            <div className="message-card-top">
-              <strong>{msg.sender?.name || "Buyer"}</strong>
-              <span>{formatDate(msg.createdAt)}</span>
-            </div>
+      {!messages.length ? (
+        <div className="messages__empty empty-state">No messages yet.</div>
+      ) : (
+        <div className="messages__list messages-list">
+          {messages.map((msg) => (
+            <article
+              key={msg._id}
+              className={`messages__card message-card${msg.readAt ? "" : " unread"}`}
+            >
+              <div className="messages__card-top message-card-top">
+                <strong className="messages__sender">{msg.sender?.name || "Buyer"}</strong>
+                <span className="messages__date">{formatDate(msg.createdAt)}</span>
+              </div>
 
-            <p className="message-listing-ref">
-              About listing:{" "}
-              <Link to={`/listings/${msg.listing?._id || ""}`}>
-                {msg.listing?.title || "View listing"}
-              </Link>
-            </p>
+              <p className="messages__listing-ref message-listing-ref">
+                About listing: {" "}
+                <Link to={`/listings/${msg.listing?._id || ""}`}>
+                  {msg.listing?.title || "View listing"}
+                </Link>
+              </p>
 
-            <p className="message-body">{msg.body}</p>
+              <p className="messages__body message-body">{msg.body}</p>
 
-            {!msg.readAt && (
-              <button
-                className="btn-primary"
-                disabled={markingId === msg._id}
-                onClick={() => markAsRead(msg._id)}
-              >
-                {markingId === msg._id ? "Marking..." : "Mark as read"}
-              </button>
-            )}
-          </article>
-        ))}
-      </div>
+              {!msg.readAt && (
+                <button
+                  className="messages__mark-btn btn-primary"
+                  disabled={markingId === msg._id}
+                  onClick={() => markAsRead(msg._id)}
+                >
+                  {markingId === msg._id ? "Marking..." : "Mark as read"}
+                </button>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

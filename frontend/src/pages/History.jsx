@@ -53,25 +53,57 @@ function History() {
     };
   }, [user]);
 
-  if (!user) return <div>Please log in to view your activity history.</div>;
-  if (loading) return <div>Loading activity history...</div>;
-  if (error) return <div>{error}</div>;
+  if (!user) {
+    return (
+      <div className="history page-shell history--centered centered-page-message">
+        <div className="history__info-banner info-banner">Please log in to view your activity history.</div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="history page-shell history--centered centered-page-message">
+        <div className="history__status-panel status-panel">Loading activity history...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="history page-shell history--centered centered-page-message">
+        <div className="history__error-banner error-banner">{error}</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="profile-page">
-      <h2>Activity History</h2>
-      {historyItems.length === 0 && <p>No activity recorded yet.</p>}
-      <ul className="profile-listings">
-        {historyItems.map((item) => (
-          <li key={item._id} className="profile-listing-item">
-            <span>
-              <b>{formatAction(item.action)}</b>
-              {item.listing?.title ? `: ${item.listing.title}` : ""}
-            </span>
-            <span>{new Date(item.createdAt).toLocaleString()}</span>
-          </li>
-        ))}
-      </ul>
+    <div className="history page-shell history--narrow page-shell--narrow">
+      <div className="history__header page-header">
+        <div className="history__header-content">
+          <span className="history__kicker page-kicker">Timeline</span>
+          <h2 className="history__title">Activity History</h2>
+          <p className="history__subtitle page-subtitle">
+            Review marketplace activity across listings, purchases, and account updates.
+          </p>
+        </div>
+      </div>
+
+      {historyItems.length === 0 ? (
+        <div className="history__empty-state empty-state">No activity recorded yet.</div>
+      ) : (
+        <ul className="history__list profile-listings">
+          {historyItems.map((item) => (
+            <li key={item._id} className="history__list-item profile-listing-item">
+              <span className="history__action">
+                <b>{formatAction(item.action)}</b>
+                {item.listing?.title ? `: ${item.listing.title}` : ""}
+              </span>
+              <span className="history__date">{new Date(item.createdAt).toLocaleString()}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

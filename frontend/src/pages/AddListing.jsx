@@ -54,31 +54,42 @@ function AddListing() {
   }, [previews]);
 
   return (
-    <div className="form-page">
-      <h2>Add Listing</h2>
+    <div className="add-listing page-shell page-shell--form">
+      <div className="add-listing__header page-header">
+        <div className="add-listing__header-content">
+          <span className="add-listing__kicker page-kicker">Create</span>
+          <h2 className="add-listing__title">Add Listing</h2>
+          <p className="add-listing__subtitle page-subtitle">
+            Build a polished product page with clear details, pricing, and media.
+          </p>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="listing-form">
-        <div className="form-group">
-          <label>Title</label>
+      <form onSubmit={handleSubmit} className="add-listing__form listing-form">
+        <div className="add-listing__form-group form-group">
+          <label className="add-listing__label">Title</label>
           <input
+            className="add-listing__input"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
           />
         </div>
 
-        <div className="form-group">
-          <label>Description</label>
+        <div className="add-listing__form-group form-group">
+          <label className="add-listing__label">Description</label>
           <textarea
+            className="add-listing__textarea"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
           />
         </div>
 
-        <div className="form-group">
-          <label>Price</label>
+        <div className="add-listing__form-group form-group">
+          <label className="add-listing__label">Price</label>
           <input
+            className="add-listing__input"
             type="number"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
@@ -86,33 +97,36 @@ function AddListing() {
           />
         </div>
 
-        <div className="form-group">
-          <label>Category</label>
+        <div className="add-listing__form-group form-group">
+          <label className="add-listing__label">Category</label>
           <input
+            className="add-listing__input"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required
           />
         </div>
 
-        <div className="form-group">
-          <label>Location</label>
+        <div className="add-listing__form-group form-group">
+          <label className="add-listing__label">Location</label>
           <input
+            className="add-listing__input"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             required
           />
         </div>
 
-        <div className="form-group">
-          <label>Images / Videos</label>
+        <div className="add-listing__form-group form-group">
+          <label className="add-listing__label">Images / Videos</label>
           <input
+            className="add-listing__file-input"
             type="file"
             accept="image/*,video/*"
             multiple
             onChange={handleMediaChange}
           />
-          <div className="media-previews">
+          <div className="add-listing__media-previews media-previews">
             {previews.map((preview, idx) => {
               if (preview.type.startsWith("image")) {
                 return (
@@ -120,7 +134,7 @@ function AddListing() {
                     key={idx}
                     src={preview.url}
                     alt="preview"
-                    className="media-thumb"
+                    className="add-listing__media-thumb media-thumb"
                   />
                 );
               } else if (preview.type.startsWith("video")) {
@@ -128,7 +142,7 @@ function AddListing() {
                   <video
                     key={idx}
                     src={preview.url}
-                    className="media-thumb"
+                    className="add-listing__media-thumb media-thumb"
                     controls
                   />
                 );
@@ -138,9 +152,9 @@ function AddListing() {
           </div>
         </div>
 
-        {error && <div className="form-error">{error}</div>}
+        {error && <div className="add-listing__form-error form-error">{error}</div>}
 
-        <button type="submit" className="btn-primary">Add Listing</button>
+        <button type="submit" className="add-listing__submit-btn btn-primary">Add Listing</button>
       </form>
     </div>
   );

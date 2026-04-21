@@ -51,52 +51,52 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <Link to="/listings" className="navbar-brand" onClick={closeMenu}>
+      <Link to="/listings" className="navbar__brand" onClick={closeMenu}>
         Marketplace
       </Link>
 
       <button
-        className="navbar-toggle"
+        className="navbar__toggle"
         aria-label="Toggle navigation menu"
         onClick={() => setMenuOpen((o) => !o)}
       >
-        ☰
+        Menu
       </button>
 
-      <div className={`navbar-links${menuOpen ? " open" : ""}`}>
+      <div className={`navbar__links navbar-links${menuOpen ? " navbar__links--open open" : ""}`}>
         {user ? (
           <>
-            <button onClick={() => { navigate("/my-listings"); closeMenu(); }}>
+            <button className="navbar__link-btn" onClick={() => { navigate("/my-listings"); closeMenu(); }}>
               My Listings
             </button>
-            <button onClick={() => { navigate("/add-listing"); closeMenu(); }}>
+            <button className="navbar__link-btn" onClick={() => { navigate("/add-listing"); closeMenu(); }}>
               Add Listing
             </button>
-            <Link to="/messages" onClick={closeMenu} className="navbar-messages-link">
+            <Link to="/messages" onClick={closeMenu} className="navbar__messages-link navbar-messages-link">
               Messages
               {unreadCount > 0 && (
-                <span className="navbar-badge" aria-label={`${unreadCount} unread messages`}>
+                <span className="navbar__badge navbar-badge" aria-label={`${unreadCount} unread messages`}>
                   {unreadCount}
                 </span>
               )}
             </Link>
-            <Link to="/history" onClick={closeMenu}>History</Link>
-            <Link to="/wishlist" onClick={closeMenu}>Wishlist</Link>
+            <Link to="/history" onClick={closeMenu} className="navbar__link">History</Link>
+            <Link to="/wishlist" onClick={closeMenu} className="navbar__link">Wishlist</Link>
 
             {user?.role === "admin" && (
-              <Link to="/admin" onClick={closeMenu}>Admin</Link>
+              <Link to="/admin" onClick={closeMenu} className="navbar__link">Admin</Link>
             )}
 
-            <button onClick={() => { navigate("/profile"); closeMenu(); }}>
+            <button className="navbar__link-btn" onClick={() => { navigate("/profile"); closeMenu(); }}>
               Profile
             </button>
 
-            <button onClick={handleLogout}>Logout</button>
+            <button className="navbar__logout-btn" onClick={handleLogout}>Logout</button>
           </>
         ) : (
           <>
-            <Link to="/login" onClick={closeMenu}>Login</Link>
-            <Link to="/register" onClick={closeMenu}>Register</Link>
+            <Link to="/login" onClick={closeMenu} className="navbar__link">Login</Link>
+            <Link to="/register" onClick={closeMenu} className="navbar__link">Register</Link>
           </>
         )}
       </div>

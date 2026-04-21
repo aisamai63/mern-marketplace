@@ -11,7 +11,6 @@ function Listings() {
   const { user, addFavorite, removeFavorite } = useAuth();
   const navigate = useNavigate();
 
-  // Search/filter state
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("");
   const [minPrice, setMinPrice] = useState("");
@@ -19,14 +18,7 @@ function Listings() {
   const [location, setLocation] = useState("");
   const [sort, setSort] = useState("");
 
-  const categories = [
-    "",
-    "Electronics",
-    "Books",
-    "Clothing",
-    "Home",
-    "Other",
-  ];
+  const categories = ["", "Electronics", "Books", "Clothing", "Home", "Other"];
 
   const sortOptions = [
     { value: "", label: "Sort By" },
@@ -40,7 +32,7 @@ function Listings() {
     setLoading(true);
     setError(null);
     try {
-      let params = {};
+      const params = {};
       if (!clear) {
         if (q) params.q = q;
         if (category) params.category = category;
@@ -50,9 +42,14 @@ function Listings() {
         if (sort) params.sort = sort;
       }
       const res = await api.get("/api/listings", { params });
-      const items = res.data.items || res.data.listings || res.data.data?.items || res.data.data || [];
+      const items =
+        res.data.items ||
+        res.data.listings ||
+        res.data.data?.items ||
+        res.data.data ||
+        [];
       setListings(Array.isArray(items) ? items : []);
-    } catch (err) {
+    } catch (_) {
       setError("Failed to load listings");
       setListings([]);
     } finally {
@@ -62,13 +59,13 @@ function Listings() {
 
   useEffect(() => {
     fetchListings();
-    // eslint-disable-next-line
   }, []);
 
   const handleFilterSubmit = (e) => {
     e.preventDefault();
     fetchListings();
   };
+
   const handleClearFilters = () => {
     setQ("");
     setCategory("");
@@ -80,74 +77,106 @@ function Listings() {
   };
 
   return (
-    <div className="listings-page">
-      <form onSubmit={handleFilterSubmit} className="filter-form">
+    <div className="listings page-shell listings-page">
+      <div className="page-header">
+        <div>
+          {/* <span className="page-kicker">Marketplace</span> */}
+          <h1>Browse Listings</h1>
+          <p className="page-subtitle">
+            Discover products nearby, filter quickly, and jump into the details that matter.
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleFilterSubmit} className="listings__filter-form filter-form">
         <input
           type="text"
+          className="listings__search-input"
           placeholder="Search..."
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select className="listings__category-select" value={category} onChange={(e) => setCategory(e.target.value)}>
           {categories.map((cat) => (
-            <option key={cat} value={cat}>{cat || "All Categories"}</option>
+            <option key={cat} value={cat}>
+              {cat || "All Categories"}
+            </option>
           ))}
         </select>
         <input
           type="number"
+          className="listings__min-price-input price-input"
           placeholder="Min Price"
           value={minPrice}
           onChange={(e) => setMinPrice(e.target.value)}
-          className="price-input"
         />
         <input
           type="number"
+          className="listings__max-price-input price-input"
           placeholder="Max Price"
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
-          className="price-input"
         />
         <input
           type="text"
+          className="listings__location-input"
           placeholder="Location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
         />
-        <select value={sort} onChange={(e) => setSort(e.target.value)}>
+        <select className="listings__sort-select" value={sort} onChange={(e) => setSort(e.target.value)}>
           {sortOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
           ))}
         </select>
-        <button type="submit" className="btn-primary">Apply Filters</button>
-        <button type="button" onClick={handleClearFilters}>Clear</button>
+        <button type="submit" className="listings__apply-btn btn-primary">
+          Apply Filters
+        </button>
+        <button type="button" className="listings__clear-btn" onClick={handleClearFilters}>
+          Clear
+        </button>
       </form>
 
       {user && (
-        <button className="btn-primary add-listing-btn" onClick={() => navigate("/add-listing")}>
+        <button
+          className="listings__add-btn btn-primary add-listing-btn"
+          onClick={() => navigate("/add-listing")}
+        >
           + Add Listing
         </button>
       )}
 
-      {loading && <div className="listings-loading">Loading listings…</div>}
-      {error && <div className="listings-error">{error}</div>}
+      {loading && <div className="listings__loading listings-loading">Loading listings...</div>}
+      {error && <div className="listings__error listings-error">{error}</div>}
 
       {!loading && !error && listings.length === 0 && (
-        <div className="listings-empty">No listings found.</div>
+        <div className="listings__empty listings-empty">No listings found.</div>
       )}
 
-      <div className="listings-grid">
+      <div className="listings__grid listings-grid">
         {listings.map((listing) => {
           const isFav = user?.favorites?.some(
             (fav) => (fav?._id || fav) === listing._id,
           );
+
+          const ownerId =
+            typeof listing.user === "object"
+              ? listing.user?._id || listing.user?.id
+              : listing.user;
+
+          const canEdit =
+            user && ownerId && String(ownerId) === String(user._id || user.id);
+
           return (
             <div
               key={listing._id}
-              className="listing-card"
-              style={{ cursor: "pointer" }}
-              onClick={e => {
-                // Prevent navigation if clicking on a button inside the card
-                if (e.target.tagName === "BUTTON" || e.target.closest("button")) return;
+              className="listings__card listing-card"
+              onClick={(e) => {
+                if (e.target.tagName === "BUTTON" || e.target.closest("button")) {
+                  return;
+                }
                 navigate(`/listings/${listing._id}`);
               }}
             >
@@ -168,16 +197,28 @@ function Listings() {
                   )}
                 </div>
               )}
+
               <div className="listing-card-body">
                 <h3 className="listing-card-title">{listing.title}</h3>
                 <p className="listing-card-desc">{listing.description}</p>
                 <p className="listing-card-price">${listing.price}</p>
+
                 <div className="listing-card-actions">
-                  <button onClick={e => { e.stopPropagation(); navigate(`/listings/${listing._id}`); }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/listings/${listing._id}`);
+                    }}
+                  >
                     View
                   </button>
-                  {user && listing.user?._id === user._id && (
-                    <button onClick={e => { e.stopPropagation(); navigate(`/edit-listing/${listing._id}`); }}>
+                  {canEdit && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/edit-listing/${listing._id}`);
+                      }}
+                    >
                       Edit
                     </button>
                   )}
@@ -185,9 +226,11 @@ function Listings() {
                     <button
                       aria-label={isFav ? "Remove from wishlist" : "Add to wishlist"}
                       className={`btn-fav${isFav ? " active" : ""}`}
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
-                        isFav ? removeFavorite(listing._id) : addFavorite(listing._id);
+                        isFav
+                          ? removeFavorite(listing._id)
+                          : addFavorite(listing._id);
                       }}
                     >
                       {isFav ? "♥" : "♡"}

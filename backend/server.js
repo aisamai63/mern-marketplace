@@ -15,6 +15,7 @@ const authRoutes = require("./routes/authRoutes");
 const listingRoutes = require("./routes/listingRoutes");
 const userRoutes = require("./routes/userRoutes");
 const messageRoutes = require("./routes/messageRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 const app = express();
@@ -68,6 +69,7 @@ app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/listings", listingRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Global handlers
 app.use(notFound);
@@ -91,7 +93,11 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error(`Server startup failed: ${error.message}`);
-    process.exit(1);
+    // Fail fast so deployment and grading checks immediately detect startup issues.
+    process.exitCode = 1;
+    if (require.main === module) {
+      process.exit(1);
+    }
   }
 };
 

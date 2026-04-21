@@ -80,31 +80,42 @@ function EditListing() {
   }, [previews]);
 
   return (
-    <div className="form-page">
-      <h2>Edit Listing</h2>
+    <div className="edit-listing page-shell page-shell--form">
+      <div className="edit-listing__header page-header">
+        <div className="edit-listing__header-content">
+          <span className="edit-listing__kicker page-kicker">Update</span>
+          <h2 className="edit-listing__title">Edit Listing</h2>
+          <p className="edit-listing__subtitle page-subtitle">
+            Refresh your listing details, status, and media so buyers always see the latest version.
+          </p>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="listing-form">
-        <div className="form-group">
-          <label>Title</label>
+      <form onSubmit={handleSubmit} className="edit-listing__form listing-form">
+        <div className="edit-listing__form-group form-group">
+          <label className="edit-listing__label">Title</label>
           <input
+            className="edit-listing__input"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
           />
         </div>
 
-        <div className="form-group">
-          <label>Description</label>
+        <div className="edit-listing__form-group form-group">
+          <label className="edit-listing__label">Description</label>
           <textarea
+            className="edit-listing__textarea"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
           />
         </div>
 
-        <div className="form-group">
-          <label>Price</label>
+        <div className="edit-listing__form-group form-group">
+          <label className="edit-listing__label">Price</label>
           <input
+            className="edit-listing__input"
             type="number"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
@@ -112,40 +123,43 @@ function EditListing() {
           />
         </div>
 
-        <div className="form-group">
-          <label>Category</label>
+        <div className="edit-listing__form-group form-group">
+          <label className="edit-listing__label">Category</label>
           <input
+            className="edit-listing__input"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           />
         </div>
 
-        <div className="form-group">
-          <label>Location</label>
+        <div className="edit-listing__form-group form-group">
+          <label className="edit-listing__label">Location</label>
           <input
+            className="edit-listing__input"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
           />
         </div>
 
-        <div className="form-group">
-          <label>Status</label>
-          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+        <div className="edit-listing__form-group form-group">
+          <label className="edit-listing__label">Status</label>
+          <select className="edit-listing__select" value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="active">Active</option>
             <option value="sold">Sold</option>
             <option value="inactive">Inactive</option>
           </select>
         </div>
 
-        <div className="form-group">
-          <label>Replace Images / Videos</label>
+        <div className="edit-listing__form-group form-group">
+          <label className="edit-listing__label">Replace Images / Videos</label>
           <input
+            className="edit-listing__file-input"
             type="file"
             accept="image/*,video/*"
             multiple
             onChange={handleMediaChange}
           />
-          <div className="media-previews">
+          <div className="edit-listing__media-previews media-previews">
             {/* New file previews */}
             {previews.map((preview, idx) => {
               if (preview.type.startsWith("image")) {
@@ -154,7 +168,7 @@ function EditListing() {
                     key={`new-${idx}`}
                     src={preview.url}
                     alt="preview"
-                    className="media-thumb"
+                    className="edit-listing__media-thumb media-thumb"
                   />
                 );
               } else if (preview.type.startsWith("video")) {
@@ -162,7 +176,7 @@ function EditListing() {
                   <video
                     key={`new-${idx}`}
                     src={preview.url}
-                    className="media-thumb"
+                    className="edit-listing__media-thumb media-thumb"
                     controls
                   />
                 );
@@ -179,7 +193,7 @@ function EditListing() {
                     <video
                       key={`old-${idx}`}
                       src={mediaUrl}
-                      className="media-thumb"
+                      className="edit-listing__media-thumb media-thumb"
                       controls
                     />
                   );
@@ -189,16 +203,16 @@ function EditListing() {
                     key={`old-${idx}`}
                     src={mediaUrl}
                     alt="existing"
-                    className="media-thumb"
+                    className="edit-listing__media-thumb media-thumb"
                   />
                 );
               })}
           </div>
         </div>
 
-        {error && <div className="form-error">{error}</div>}
+        {error && <div className="edit-listing__form-error form-error">{error}</div>}
 
-        <button type="submit" className="btn-primary">Update Listing</button>
+        <button type="submit" className="edit-listing__submit-btn btn-primary">Update Listing</button>
       </form>
     </div>
   );

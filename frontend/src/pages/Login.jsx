@@ -8,7 +8,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -30,33 +30,44 @@ function Login() {
   };
 
   return (
-    <div className="auth-page">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit} className="auth-form">
-        <div className="form-group">
-          <label>Email</label>
+    <div className="login page-shell login--form page-shell--form">
+      <div className="login__header page-header">
+        <div className="login__header-content">
+          <span className="login__kicker page-kicker">Welcome Back</span>
+          <h2 className="login__title">Login</h2>
+          <p className="login__subtitle page-subtitle">
+            Access your marketplace account to manage listings, messages, and orders.
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="login__form auth-form">
+        <div className="login__form-group form-group">
+          <label className="login__label">Email</label>
           <input
+            className="login__input"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
-        <div className="form-group">
-          <label>Password</label>
+        <div className="login__form-group form-group">
+          <label className="login__label">Password</label>
           <input
+            className="login__input"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        {error && <div className="form-error">{error}</div>}
-        <button type="submit" className="btn-primary"disabled={loading}>
+        {error && <div className="login__form-error form-error">{error}</div>}
+        <button type="submit" className="login__submit-btn btn-primary" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
-      <p>
+      <p className="login__footer auth-footer">
         Don't have an account? <Link to="/register">Register</Link>
       </p>
     </div>

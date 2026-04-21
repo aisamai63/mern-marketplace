@@ -901,3 +901,238 @@ textarea {
   font-size: var(--text-sm);
   margin-top: 6px;
 }
+
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-tabs__tab {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.admin-tabs__tab.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.admin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.admin-table th {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  background: var(--color-surface-alt);
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-role-select {
+  min-width: 100px;
+}
+
+/* =============================================
+   Responsive Layout System (Grid + Flex)
+   ============================================= */
+.layout-shell,
+.app-layout {
+  width: min(100% - 1.5rem, 1280px);
+  margin-inline: auto;
+  padding: 1.25rem 0 2rem;
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.layout-sidebar,
+.sidebar {
+  min-width: 0;
+  position: sticky;
+  top: 88px;
+  align-self: start;
+}
+
+.layout-content,
+.content-wrapper {
+  min-width: 0;
+  width: 100%;
+}
+
+.main-nav,
+.navbar {
+  width: min(100% - 1.5rem, 1280px);
+  margin-inline: auto;
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(160%) blur(10px);
+  -webkit-backdrop-filter: saturate(160%) blur(10px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.main-nav__brand,
+.navbar__brand,
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.main-nav__brand:hover,
+.navbar__brand:hover,
+.navbar-brand:hover {
+  color: var(--color-primary-hover);
+  text-decoration: none;
+}
+
+.main-nav__links,
+.navbar__links,
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.main-nav__links a,
+.main-nav__links button,
+.navbar__links a,
+.navbar__links button,
+.navbar-links a,
+.navbar-links button {
+  border: none;
+  background: transparent;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+}
+
+.main-nav__links a:hover,
+.main-nav__links button:hover,
+.navbar__links a:hover,
+.navbar__links button:hover,
+.navbar-links a:hover,
+.navbar-links button:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  text-decoration: none;
+}
+
+.main-nav__toggle,
+.navbar__toggle,
+.navbar-toggle {
+  margin-left: auto;
+  display: none;
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+}
+
+@media (max-width: 920px) {
+  .layout-shell,
+  .app-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .layout-sidebar,
+  .sidebar {
+    position: static;
+    top: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .main-nav,
+  .navbar {
+    width: min(100% - 1rem, 1280px);
+    padding: 0.7rem 0.8rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .main-nav__toggle,
+  .navbar__toggle,
+  .navbar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .main-nav__links,
+  .navbar__links,
+  .navbar-links {
+    display: none;
+    width: 100%;
+    margin-left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.6rem;
+    gap: 0.25rem;
+  }
+
+  .main-nav__links.open,
+  .main-nav__links--open,
+  .navbar__links.open,
+  .navbar__links--open,
+  .navbar-links.open {
+    display: flex;
+  }
+
+  .main-nav__links a,
+  .main-nav__links button,
+  .navbar__links a,
+  .navbar__links button,
+  .navbar-links a,
+  .navbar-links button {
+    text-align: left;
+    width: 100%;
+  }
+}
